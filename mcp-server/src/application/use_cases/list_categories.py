@@ -1,6 +1,6 @@
 from typing import List
 from loguru import logger
-from ...domain.repositories.vector_repository import VectorRepository
+from domain.repositories.vector_repository import VectorRepository
 
 
 class ListCategoriesUseCase:
