@@ -5,6 +5,9 @@ from typing import Optional
 from loguru import logger
 from dotenv import load_dotenv
 import fastmcp
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
+from starlette.requests import Request
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -30,6 +33,17 @@ mcp = fastmcp.FastMCP(
 # ── Repositorio compartido ──────────────────────────────────
 def get_repository() -> ChromaRepository:
     return ChromaRepository()
+
+
+# ── Health check ────────────────────────────────────────────
+@mcp.custom_route("/health", methods=["GET"])
+async def health(request: Request) -> JSONResponse:
+    return JSONResponse({
+        "status": "healthy",
+        "server": os.getenv("MCP_SERVER_NAME", "bancolombia-knowledge-base"),
+        "transport": "streamable-http",
+        "version": "1.0.0",
+    })
 
 
 # ══════════════════════════════════════════════════════════════
@@ -80,11 +94,9 @@ def search_knowledge_base(
     except ValueError as e:
         logger.warning(f"Parámetro inválido en search_knowledge_base: {e}")
         return {"error": str(e), "results": []}
-
     except RuntimeError as e:
         logger.error(f"Base vectorial no disponible: {e}")
         return {"error": str(e), "results": []}
-
     except Exception as e:
         logger.error(f"Error inesperado en search_knowledge_base: {e}")
         return {"error": "Error interno del servidor", "results": []}
@@ -106,7 +118,6 @@ def get_article_by_url(url: str) -> dict:
         repository = get_repository()
         use_case = GetArticleByUrlUseCase(vector_repository=repository)
         documents = use_case.execute(url=url)
-
         full_content = "\n\n".join([doc.content for doc in documents])
 
         return {
@@ -120,11 +131,9 @@ def get_article_by_url(url: str) -> dict:
     except ValueError as e:
         logger.warning(f"URL inválida en get_article_by_url: {e}")
         return {"error": str(e), "content": ""}
-
     except RuntimeError as e:
         logger.error(f"Base vectorial no disponible: {e}")
         return {"error": str(e), "content": ""}
-
     except Exception as e:
         logger.error(f"Error inesperado en get_article_by_url: {e}")
         return {"error": "Error interno del servidor", "content": ""}
@@ -152,7 +161,6 @@ def list_categories() -> dict:
     except RuntimeError as e:
         logger.error(f"Base vectorial no disponible: {e}")
         return {"error": str(e), "categories": []}
-
     except Exception as e:
         logger.error(f"Error inesperado en list_categories: {e}")
         return {"error": "Error interno del servidor", "categories": []}
@@ -161,21 +169,22 @@ def list_categories() -> dict:
 # ══════════════════════════════════════════════════════════════
 # RESOURCE
 # ══════════════════════════════════════════════════════════════
-
-@mcp.resource("knowledgebase://stats")
-def get_knowledge_base_stats() -> dict:
-    """
-    Expone estadísticas de la base de conocimiento.
-    Incluye: número de documentos, categorías, modelo de embeddings y fecha de actualización.
-    """
+@mcp.resource(
+    uri="knowledgebase://stats",
+    name="knowledge_base_stats",
+    description="Estadísticas de la base de conocimiento: documentos indexados, categorías, modelo de embeddings y fecha de actualización",
+    mime_type="application/json",
+)
+def get_knowledge_base_stats() -> str:
+    """Expone estadísticas de la base de conocimiento"""
+    import json
     try:
         repository = get_repository()
         stats = repository.get_stats()
-        return stats
-
+        return json.dumps(stats, ensure_ascii=False, indent=2)
     except Exception as e:
         logger.error(f"Error obteniendo stats: {e}")
-        return {"error": str(e)}
+        return json.dumps({"error": str(e)})
 
 
 # ══════════════════════════════════════════════════════════════
@@ -189,8 +198,9 @@ if __name__ == "__main__":
 
     logger.info(f"🚀 Iniciando servidor MCP")
     logger.info(f"   Transporte: {transport}")
-    logger.info(f"   Host: {host}:{port}")
-    logger.info(f"   URL: http://{host}:{port}/mcp")
+    logger.info(f"   Host:       {host}:{port}")
+    logger.info(f"   MCP URL:    http://{host}:{port}/mcp")
+    logger.info(f"   Health:     http://{host}:{port}/health")
 
     mcp.run(
         transport=transport,
