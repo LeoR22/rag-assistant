@@ -5,13 +5,13 @@ from typing import List, Optional
 from datetime import datetime
 from loguru import logger
 import chromadb
-
 from dotenv import load_dotenv
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from domain.entities.document import Document
 from domain.repositories.vector_repository import VectorRepository
 from infrastructure.embeddings.embedding_generator import EmbeddingGenerator
-
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 load_dotenv()
 
@@ -19,12 +19,13 @@ load_dotenv()
 class ChromaRepository(VectorRepository):
     """
     Implementación de VectorRepository usando ChromaDB.
-    
+
     ChromaDB elegido por:
     - Gratuito y local — sin costos ni dependencias externas
     - Persistencia en disco — los datos sobreviven reinicios
     - Filtrado por metadatos — permite filtrar por categoría, URL
     - Fácil de dockerizar
+    - Migrable a Qdrant/Pinecone sin cambiar el dominio (inversión de dependencias)
     """
 
     def __init__(self):
@@ -35,12 +36,16 @@ class ChromaRepository(VectorRepository):
         self._embedding_generator = EmbeddingGenerator()
         self._collection = self._client.get_or_create_collection(
             name=collection_name,
-            metadata={"hnsw:space": "cosine"},
+            metadata={
+                "hnsw:space": "cosine",
+                "embedding_dimension": int(os.getenv("EMBEDDING_DIMENSION", 3072)),
+            },
         )
         logger.success(f"ChromaDB inicializado — colección: {collection_name}")
 
     def add_documents(self, documents: List[Document]) -> None:
         if not documents:
+            logger.warning("No hay documentos para indexar")
             return
 
         ids = [doc.id for doc in documents]
@@ -74,8 +79,10 @@ class ChromaRepository(VectorRepository):
         top_k: int = 5,
         category: Optional[str] = None,
     ) -> List[Document]:
-        query_embedding = self._embedding_generator.generate(query)
+        if not query or not query.strip():
+            raise ValueError("La consulta no puede estar vacía")
 
+        query_embedding = self._embedding_generator.generate(query)
         where = {"category": category} if category else None
 
         results = self._collection.query(
@@ -89,7 +96,7 @@ class ChromaRepository(VectorRepository):
         for i, doc_id in enumerate(results["ids"][0]):
             metadata = results["metadatas"][0][i]
             distance = results["distances"][0][i]
-            relevance_score = 1 - distance
+            relevance_score = round(1 - distance, 4)
 
             doc = Document(
                 id=doc_id,
@@ -107,10 +114,16 @@ class ChromaRepository(VectorRepository):
         return documents
 
     def get_by_url(self, url: str) -> List[Document]:
+        if not url or not url.strip():
+            raise ValueError("La URL no puede estar vacía")
+
         results = self._collection.get(
             where={"url": url},
             include=["documents", "metadatas"],
         )
+
+        if not results["ids"]:
+            return []
 
         documents = []
         for i, doc_id in enumerate(results["ids"]):
@@ -131,6 +144,8 @@ class ChromaRepository(VectorRepository):
 
     def list_categories(self) -> List[str]:
         results = self._collection.get(include=["metadatas"])
+        if not results["metadatas"]:
+            return []
         categories = list({m["category"] for m in results["metadatas"]})
         return sorted(categories)
 
@@ -141,8 +156,9 @@ class ChromaRepository(VectorRepository):
             "total_documents": count,
             "categories": categories,
             "total_categories": len(categories),
-            "embedding_model": os.getenv("EMBEDDING_MODEL", "paraphrase-multilingual-mpnet-base-v2"),
-            "embedding_dimension": int(os.getenv("EMBEDDING_DIMENSION", 768)),
+            "embedding_model": os.getenv("EMBEDDING_MODEL", "text-embedding-3-large"),
+            "embedding_dimension": int(os.getenv("EMBEDDING_DIMENSION", 3072)),
+            "vector_db": "ChromaDB",
             "last_updated": datetime.utcnow().isoformat(),
         }
 

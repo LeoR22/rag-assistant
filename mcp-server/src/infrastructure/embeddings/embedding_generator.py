@@ -1,7 +1,7 @@
 import os
 from typing import List
 from loguru import logger
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,40 +9,62 @@ load_dotenv()
 
 class EmbeddingGenerator:
     """
-    Genera embeddings usando sentence-transformers.
-    
-    Modelo elegido: paraphrase-multilingual-mpnet-base-v2
-    - Dimensionalidad: 768
-    - Multilingüe: soporta español nativamente
-    - Gratuito: no requiere API key
-    - Balance calidad/velocidad ideal para RAG
+    Genera embeddings usando GitHub Models (Azure OpenAI).
+
+    Modelo elegido: text-embedding-3-large
+    - Dimensionalidad: 3072 — mayor separación semántica
+    - Multilingüe nativo — entrenado con contenido en español
+    - Supera sentence-transformers en benchmarks MTEB
+    - Gratuito via GitHub Models token
     """
 
+    GITHUB_MODELS_URL = "https://models.inference.ai.azure.com"
+
     def __init__(self):
-        model_name = os.getenv(
-            "EMBEDDING_MODEL",
-            "paraphrase-multilingual-mpnet-base-v2"
+        token = os.getenv("GITHUB_TOKEN")
+        if not token:
+            raise EnvironmentError("GITHUB_TOKEN no está configurado en .env")
+
+        self._client = OpenAI(
+            base_url=self.GITHUB_MODELS_URL,
+            api_key=token,
         )
-        logger.info(f"Cargando modelo de embeddings: {model_name}")
-        self._model = SentenceTransformer(model_name)
-        self._dimension = int(os.getenv("EMBEDDING_DIMENSION", 768))
-        logger.success(f"Modelo cargado — dimensión: {self._dimension}")
+        self._model = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
+        self._dimension = int(os.getenv("EMBEDDING_DIMENSION", 3072))
+        logger.success(f"EmbeddingGenerator listo — modelo: {self._model} | dimensión: {self._dimension}")
 
     def generate(self, text: str) -> List[float]:
         """Genera embedding para un texto"""
-        embedding = self._model.encode(text, normalize_embeddings=True)
-        return embedding.tolist()
+        if not text or not text.strip():
+            raise ValueError("El texto no puede estar vacío")
+
+        response = self._client.embeddings.create(
+            model=self._model,
+            input=text,
+        )
+        return response.data[0].embedding
 
     def generate_batch(self, texts: List[str]) -> List[List[float]]:
-        """Genera embeddings para una lista de textos en batch"""
+        """Genera embeddings para una lista de textos"""
+        if not texts:
+            return []
+
         logger.info(f"Generando embeddings para {len(texts)} textos")
-        embeddings = self._model.encode(
-            texts,
-            normalize_embeddings=True,
-            show_progress_bar=True,
-            batch_size=32,
-        )
-        return embeddings.tolist()
+
+        embeddings = []
+        batch_size = 16  # GitHub Models tiene límite de rate
+
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i:i + batch_size]
+            response = self._client.embeddings.create(
+                model=self._model,
+                input=batch,
+            )
+            batch_embeddings = [item.embedding for item in response.data]
+            embeddings.extend(batch_embeddings)
+            logger.debug(f"Batch {i//batch_size + 1} completado — {len(embeddings)}/{len(texts)}")
+
+        return embeddings
 
     @property
     def dimension(self) -> int:
