@@ -18,19 +18,29 @@ class EmbeddingGenerator:
     - Gratuito via GitHub Models token
     """
 
-    GITHUB_MODELS_URL = "https://models.inference.ai.azure.com"
-
     def __init__(self):
         token = os.getenv("GITHUB_TOKEN")
         if not token:
             raise EnvironmentError("GITHUB_TOKEN no está configurado en .env")
 
+        github_models_url = os.getenv("GITHUB_MODELS_URL")
+        if not github_models_url:
+            raise EnvironmentError("GITHUB_MODELS_URL no está configurado en .env")
+
+        embedding_model = os.getenv("EMBEDDING_MODEL")
+        if not embedding_model:
+            raise EnvironmentError("EMBEDDING_MODEL no está configurado en .env")
+
+        embedding_dimension = os.getenv("EMBEDDING_DIMENSION")
+        if not embedding_dimension:
+            raise EnvironmentError("EMBEDDING_DIMENSION no está configurado en .env")
+
         self._client = OpenAI(
-            base_url=self.GITHUB_MODELS_URL,
+            base_url=github_models_url,
             api_key=token,
         )
-        self._model = os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
-        self._dimension = int(os.getenv("EMBEDDING_DIMENSION", 3072))
+        self._model = embedding_model
+        self._dimension = int(embedding_dimension)
         logger.success(f"EmbeddingGenerator listo — modelo: {self._model} | dimensión: {self._dimension}")
 
     def generate(self, text: str) -> List[float]:
@@ -52,7 +62,7 @@ class EmbeddingGenerator:
         logger.info(f"Generando embeddings para {len(texts)} textos")
 
         embeddings = []
-        batch_size = 16  # GitHub Models tiene límite de rate
+        batch_size = 16
 
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]

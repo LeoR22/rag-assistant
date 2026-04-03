@@ -2,8 +2,6 @@ import os
 from loguru import logger
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain_mcp_adapters.client import MultiServerMCPClient
-from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import MemorySaver
 
 load_dotenv()
@@ -17,22 +15,37 @@ def build_agent():
     - MemorySaver para memoria corto plazo entre turnos
     """
 
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        raise EnvironmentError("GITHUB_TOKEN no está configurado en .env")
+
+    llm_model = os.getenv("LLM_MODEL")
+    if not llm_model:
+        raise EnvironmentError("LLM_MODEL no está configurado en .env")
+
+    llm_base_url = os.getenv("LLM_BASE_URL")
+    if not llm_base_url:
+        raise EnvironmentError("LLM_BASE_URL no está configurado en .env")
+
+    mcp_server_url = os.getenv("MCP_SERVER_URL")
+    if not mcp_server_url:
+        raise EnvironmentError("MCP_SERVER_URL no está configurado en .env")
+
     llm = ChatOpenAI(
-        model=os.getenv("LLM_MODEL", "gpt-4o"),
-        base_url=os.getenv("LLM_BASE_URL", "https://models.inference.ai.azure.com"),
-        api_key=os.getenv("GITHUB_TOKEN"),
+        model=llm_model,
+        base_url=llm_base_url,
+        api_key=token,
         temperature=0.1,
     )
 
     mcp_config = {
         "bancolombia": {
-            "url": os.getenv("MCP_SERVER_URL", "http://localhost:8000/mcp"),
+            "url": mcp_server_url,
             "transport": "streamable_http",
         }
     }
 
     memory = MemorySaver()
-
     logger.success("Agente LangGraph construido exitosamente")
 
     return llm, mcp_config, memory

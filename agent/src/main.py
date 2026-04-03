@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
-
+from starlette.requests import Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -20,8 +20,6 @@ from fastapi.responses import JSONResponse
 from application.use_cases.process_message import ProcessMessageUseCase
 
 limiter = Limiter(key_func=get_remote_address)
-app.state.limiter = limiter
-app.add_middleware(SlowAPIMiddleware)
 
 
 load_dotenv()
@@ -33,6 +31,9 @@ app = FastAPI(
     version="1.0.0",
 )
 
+
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -74,18 +75,18 @@ async def rate_limit_handler(request, exc):
 
 @app.post("/chat", response_model=ChatResponse)
 @limiter.limit("10/minute")
-async def chat(request: ChatRequest):
+async def chat(request: Request, body: ChatRequest):
     try:
-        conversation_id = request.conversation_id or str(uuid.uuid4())
+        conversation_id = body.conversation_id or str(uuid.uuid4())
 
-        if not request.query or not request.query.strip():
+        if not body.query or not body.query.strip():
             raise HTTPException(status_code=400, detail="La consulta no puede estar vacía")
 
-        if len(request.query) > 500:
+        if len(body.query) > 500:
             raise HTTPException(status_code=400, detail="La consulta no puede superar 500 caracteres")
 
         result = await process_message.execute(
-            query=request.query,
+            query=body.query,
             conversation_id=conversation_id,
         )
 
