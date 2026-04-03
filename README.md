@@ -55,7 +55,15 @@ El agente implementa una arquitectura de memoria en 3 niveles para mantener cont
 - **Mediano plazo** — Los resúmenes permiten al agente recordar conversaciones anteriores sin cargar todo el historial
 - **Largo plazo** — SQLite dockerizable con volúmenes — migrable a PostgreSQL para producción sin cambiar el dominio (`MemoryRepository` es una interfaz)
 
+### Memoria del Frontend
+Adicionalmente el frontend implementa persistencia del historial de conversaciones en **localStorage** del navegador:
+- Máximo 20 conversaciones guardadas
+- Cada conversación incluye mensajes, fuentes y metadatos
+- Persiste entre reinicios del navegador
+- El usuario puede navegar entre conversaciones anteriores desde el sidebar
+- Se limpia con el botón "Nueva conversación"
 
+> **Nota:** Esta capa es complementaria a la memoria del agente — el frontend guarda el historial visual mientras el agente mantiene el contexto conversacional en SQLite.
 ---
 
 ## Stack tecnológico
