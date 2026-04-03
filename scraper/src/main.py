@@ -17,26 +17,50 @@ load_dotenv()
 
 async def main():
     base_url = os.getenv("BASE_URL")
-    max_pages = int(os.getenv("MAX_PAGES", 80))
     output_dir = os.getenv("OUTPUT_DIR", "data/raw")
 
-    logger.info("🚀 Iniciando scraper de Bancolombia")
+    logger.info("Iniciando scraper industrializado de Bancolombia....")
 
     crawler = BancolombiaCrawler()
     repository = JsonRepository(output_dir=output_dir)
     crawl_use_case = CrawlWebsiteUseCase(crawler_repository=crawler)
     clean_use_case = CleanContentUseCase()
 
-    logger.info("📡 Fase 1: Crawling")
-    pages = await crawl_use_case.execute(base_url=base_url, max_pages=max_pages)
+    # URLs ya indexadas para proceso incremental
+    existing_urls = repository.get_existing_urls()
+    logger.info(f"URLs ya indexadas: {len(existing_urls)}")
 
-    logger.info("🧹 Fase 2: Limpieza y chunking")
-    cleaned_pages = [clean_use_case.execute(page) for page in pages]
+    # Fase 1: Crawling
+    logger.info("Fase 1: Crawling")
+    pages = await crawl_use_case.execute(base_url=base_url)
 
-    logger.info("💾 Fase 3: Guardando datos")
-    repository.save_all(cleaned_pages)
+    # Fase 2: Detección de cambios y limpieza
+    logger.info("Fase 2: Detección de cambios y limpieza")
+    new_pages = []
+    updated_pages = []
+    unchanged_pages = []
 
-    logger.success(f"✅ Scraper completado — {len(cleaned_pages)} páginas procesadas")
+    for page in pages:
+        cleaned = clean_use_case.execute(page)
+        if page.url not in existing_urls:
+            new_pages.append(cleaned)
+        elif repository.is_page_modified(page.url, page.content_hash or ""):
+            updated_pages.append(cleaned)
+        else:
+            unchanged_pages.append(cleaned)
+
+    # Fase 3: Persistencia
+    logger.info("Fase 3: Guardando datos")
+    all_pages = new_pages + updated_pages + unchanged_pages
+    repository.save_all(all_pages)
+
+    # Reporte final
+    logger.info("=" * 50)
+    logger.success(f"Páginas nuevas:       {len(new_pages)}")
+    logger.info(f" Páginas actualizadas: {len(updated_pages)}")
+    logger.info(f"Sin cambios:          {len(unchanged_pages)}")
+    logger.success(f"Total procesadas:    {len(all_pages)}")
+    logger.info("=" * 50)
 
 
 if __name__ == "__main__":

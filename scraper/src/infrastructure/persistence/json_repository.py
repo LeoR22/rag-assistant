@@ -26,11 +26,11 @@ class JsonRepository:
             "extracted_at": page.extracted_at.isoformat(),
             "word_count": page.word_count,
             "chunks": page.chunks or [],
+            "content_hash": page.content_hash,
         }
 
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-
         logger.success(f"Guardado: {filepath}")
 
     def save_all(self, pages: List[Page]) -> None:
@@ -69,3 +69,28 @@ class JsonRepository:
         clean = url.replace("https://", "").replace("http://", "")
         clean = clean.replace("/", "_").replace(".", "_")
         return f"{clean[:100]}.json"
+    
+    def get_existing_urls(self) -> set:
+        """Retorna todas las URLs ya indexadas"""
+        index_path = self._output_dir / "index.json"
+        if not index_path.exists():
+            return set()
+        try:
+            with open(index_path, "r", encoding="utf-8") as f:
+                index = json.load(f)
+                return {p["url"] for p in index.get("pages", [])}
+        except Exception:
+            return set()
+
+    def is_page_modified(self, url: str, new_hash: str) -> bool:
+        """Detecta si una página fue modificada"""
+        filename = self._url_to_filename(url)
+        filepath = self._output_dir / filename
+        if not filepath.exists():
+            return True
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                existing = json.load(f)
+                return existing.get("content_hash", "") != new_hash
+        except Exception:
+            return True

@@ -40,6 +40,23 @@ Asistente virtual del Grupo Bancolombia que responda preguntas sobre productos, 
 | **Frontend** | React · TypeScript | 3000 | Interfaz de chat con historial y fuentes |
 
 ---
+## Memoria del Agente — 3 niveles
+
+El agente implementa una arquitectura de memoria en 3 niveles para mantener contexto conversacional:
+
+| Tipo | Implementación | Persistencia | Alcance |
+|---|---|---|---|
+| **Corto plazo** | MemorySaver LangGraph (RAM) | Solo sesión activa | Mensajes del turno actual por `thread_id` |
+| **Mediano plazo** | Resúmenes en SQLite | Entre sesiones | Contexto resumido de conversaciones anteriores — se genera automáticamente cuando una conversación supera 10 mensajes |
+| **Largo plazo** | SQLite via SQLAlchemy | Permanente | Historial completo de todas las conversaciones persistido en disco |
+
+### Justificación
+- **Corto plazo** — LangGraph `MemorySaver` mantiene el hilo de la conversación activa sin overhead de base de datos
+- **Mediano plazo** — Los resúmenes permiten al agente recordar conversaciones anteriores sin cargar todo el historial
+- **Largo plazo** — SQLite dockerizable con volúmenes — migrable a PostgreSQL para producción sin cambiar el dominio (`MemoryRepository` es una interfaz)
+
+
+---
 
 ## Stack tecnológico
 

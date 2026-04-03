@@ -53,9 +53,19 @@ async def health(request: Request) -> JSONResponse:
 @mcp.tool(
     description="""
     Busca información relevante en la base de conocimiento de Bancolombia.
-    Recibe una consulta en lenguaje natural y retorna los documentos más relevantes
-    con su URL de origen, título, categoría y score de relevancia.
-    Úsala cuando el usuario pregunte sobre productos, servicios o información de Bancolombia.
+
+    USA ESTA TOOL CUANDO:
+    - El usuario pregunte sobre productos bancarios: cuentas, créditos, tarjetas, seguros, inversiones, pagos
+    - El usuario pregunte sobre requisitos, tasas, plazos o condiciones de productos
+    - El usuario pregunte sobre servicios digitales, canales de atención o sucursales
+    - Necesites información actualizada sobre Bancolombia para responder
+
+    NO USES ESTA TOOL CUANDO:
+    - El usuario salude o haga preguntas generales de conversación
+    - La pregunta no tenga relación con Bancolombia
+
+    Retorna documentos con URL, título, categoría y score de relevancia.
+    SIEMPRE cita las URLs retornadas al final de tu respuesta.
     """
 )
 def search_knowledge_base(
@@ -104,9 +114,15 @@ def search_knowledge_base(
 
 @mcp.tool(
     description="""
-    Obtiene el contenido completo de un artículo de Bancolombia por su URL.
-    Retorna todos los chunks del artículo ordenados correctamente.
-    Úsala cuando necesites el contenido completo de una página específica de Bancolombia.
+    Obtiene el contenido COMPLETO de un artículo específico de Bancolombia por su URL.
+
+    USA ESTA TOOL CUANDO:
+    - Ya tienes una URL de bancolombia.com y necesitas más detalles del artículo
+    - El usuario pide información detallada sobre una página específica
+    - Los resultados de search_knowledge_base no tienen suficiente detalle
+    - Necesitas el contenido completo de un artículo para responder correctamente
+
+    Retorna todos los chunks del artículo ordenados con el contenido completo.
     """
 )
 def get_article_by_url(url: str) -> dict:
@@ -141,9 +157,14 @@ def get_article_by_url(url: str) -> dict:
 
 @mcp.tool(
     description="""
-    Lista todas las categorías disponibles en la base de conocimiento de Bancolombia.
-    Úsala para conocer qué tipos de productos y servicios están indexados
-    antes de hacer una búsqueda filtrada por categoría.
+    Lista todas las categorías de productos y servicios disponibles en la base de conocimiento.
+
+    USA ESTA TOOL CUANDO:
+    - El usuario pregunte qué tipos de productos tiene Bancolombia
+    - Quieras filtrar búsquedas por categoría antes de usar search_knowledge_base
+    - El usuario pregunte por categorías generales
+
+    Categorías disponibles: Créditos, Ahorro, Inversiones, Seguros, Tarjetas, Pagos y Transferencias, General.
     """
 )
 def list_categories() -> dict:
