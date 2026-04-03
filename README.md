@@ -155,6 +155,30 @@ cd agent && uv run pytest tests/ -v
 
 **Resultado:** 16 tests pasando ✅
 
+
+## MCP Inspector — Pruebas locales
+
+### Streamable HTTP (producción)
+Con el servidor MCP corriendo:
+```bash
+cd mcp-server
+python src/server.py
+```
+
+En el inspector:
+- **Transport Type:** `Streamable HTTP`
+- **URL:** `http://localhost:8000/mcp`
+- **Connection Type:** `Via Proxy`
+
+### STDIO (pruebas locales)
+Sin servidor corriendo previamente:
+
+En el inspector:
+- **Transport Type:** `STDIO`
+- **Command:** `C:\Prueba_tecnica\rag-assistant\mcp-server\.venv\Scripts\python.exe`
+- **Arguments:** `C:\Prueba_tecnica\rag-assistant\mcp-server\run_stdio.py`
+
+El script `run_stdio.py` carga automáticamente el `.env` y fuerza el transporte stdio.
 ---
 
 ## CI/CD

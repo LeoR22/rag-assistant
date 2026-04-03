@@ -207,7 +207,6 @@ if __name__ == "__main__":
         logger.info(f"   MCP URL: http://{host}:{port}/mcp")
         logger.info(f"   Health:  http://{host}:{port}/health")
         mcp.run(
-            transport=transport,
             host=host,
             port=port,
         )
