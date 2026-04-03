@@ -12,7 +12,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from fastapi.responses import JSONResponse
 from application.use_cases.process_message import ProcessMessageUseCase
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+
 
 load_dotenv()
 
@@ -54,8 +64,16 @@ async def health():
         "version": "1.0.0",
     }
 
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request, exc):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Demasiadas solicitudes. Intenta de nuevo en un momento."}
+    )
+
 
 @app.post("/chat", response_model=ChatResponse)
+@limiter.limit("10/minute")
 async def chat(request: ChatRequest):
     try:
         conversation_id = request.conversation_id or str(uuid.uuid4())

@@ -198,12 +198,16 @@ if __name__ == "__main__":
 
     logger.info(f"🚀 Iniciando servidor MCP")
     logger.info(f"   Transporte: {transport}")
-    logger.info(f"   Host:       {host}:{port}")
-    logger.info(f"   MCP URL:    http://{host}:{port}/mcp")
-    logger.info(f"   Health:     http://{host}:{port}/health")
 
-    mcp.run(
-        transport=transport,
-        host=host,
-        port=port,
-    )
+    if transport == "stdio":
+        logger.info(f"   Modo: stdio")
+        mcp.run(transport="stdio")
+    else:
+        logger.info(f"   Host:    {host}:{port}")
+        logger.info(f"   MCP URL: http://{host}:{port}/mcp")
+        logger.info(f"   Health:  http://{host}:{port}/health")
+        mcp.run(
+            transport=transport,
+            host=host,
+            port=port,
+        )

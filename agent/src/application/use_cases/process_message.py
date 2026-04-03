@@ -10,6 +10,7 @@ from infrastructure.memory.long_term import LongTermMemory
 from infrastructure.memory.short_term import ShortTermMemory
 from domain.entities.message import Message, MessageRole, Source
 from domain.entities.conversation import Conversation
+from application.use_cases.manage_memory import ManageMemoryUseCase
 
 load_dotenv()
 
@@ -77,6 +78,11 @@ class ProcessMessageUseCase:
         )
         self._long_term.save_message(assistant_message)
         self._short_term.add_assistant_message(response_content)
+        # Genera resumen si la conversación supera 10 mensajes (memoria mediano plazo)
+        conversation = self._long_term.get_conversation(conversation_id)
+        if conversation and len(conversation.messages) >= 10:
+            manage_memory = ManageMemoryUseCase()
+            await manage_memory.summarize_conversation(conversation_id)
 
         logger.success(f"Respuesta generada — fuentes: {len(sources)}")
 

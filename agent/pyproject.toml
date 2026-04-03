@@ -12,6 +12,7 @@ dependencies = [
     "loguru>=0.7.3",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.2",
+    "slowapi>=0.1.9",
     "sqlalchemy>=2.0.48",
     "uvicorn>=0.42.0",
 ]
