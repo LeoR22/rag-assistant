@@ -45,6 +45,13 @@ class ProcessMessageUseCase:
         # Construye historial
         history = self._short_term.get_messages()
 
+        # Obtiene contexto de memoria mediano plazo
+        manage_memory = ManageMemoryUseCase()
+        memory_context = manage_memory.get_context_from_history(conversation_id)
+        prompt = SYSTEM_PROMPT
+        if memory_context:
+            prompt = SYSTEM_PROMPT + f"\n\n{memory_context}"
+
         # Ejecuta el agente con las tools MCP — nueva API 0.1.0
         client = MultiServerMCPClient(self._mcp_config)
         tools = await client.get_tools()
@@ -52,7 +59,7 @@ class ProcessMessageUseCase:
         agent = create_react_agent(
             model=self._llm,
             tools=tools,
-            prompt=SYSTEM_PROMPT,
+            prompt=prompt,
             checkpointer=self._memory,
         )
 

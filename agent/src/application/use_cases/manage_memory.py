@@ -16,8 +16,8 @@ class ManageMemoryUseCase:
     def __init__(self):
         self._memory = LongTermMemory()
         self._llm = ChatOpenAI(
-            model=os.getenv("LLM_MODEL", "gpt-4o"),
-            base_url=os.getenv("LLM_BASE_URL", "https://models.inference.ai.azure.com"),
+            model=os.getenv("LLM_MODEL"),
+            base_url=os.getenv("LLM_BASE_URL"),
             api_key=os.getenv("GITHUB_TOKEN"),
             temperature=0,
         )

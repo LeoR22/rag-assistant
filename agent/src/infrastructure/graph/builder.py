@@ -45,6 +45,7 @@ def build_agent():
         }
     }
 
+    #Memoria corto plazo para mantener contexto entre turnos
     memory = MemorySaver()
     logger.success("Agente LangGraph construido exitosamente")
 
@@ -54,7 +55,7 @@ def build_agent():
 SYSTEM_PROMPT = """Eres un asistente virtual experto en productos y servicios del Grupo Bancolombia.
 
 Tu conocimiento proviene exclusivamente de la información indexada del sitio web bancolombia.com/personas.
-
+{memory_context}
 Reglas:
 1. SIEMPRE usa la tool search_knowledge_base para buscar información antes de responder preguntas sobre Bancolombia.
 2. SIEMPRE cita las URLs de las fuentes al final de tu respuesta.
