@@ -16,7 +16,38 @@
 Asistente virtual del Grupo Bancolombia que responda preguntas sobre productos, servicios y contenido publicado en la sección de personas del sitio web,utilizando una arquitectura RAG con un agente conversacional accesible mediante unainterfaz de chat.
 
 ---
+## Nota:
 
+> - **Sin costos** — La solución usa exclusivamente servicios gratuitos:
+> - **GitHub Models** (Azure OpenAI) — gratuito con token de GitHub
+> - **ChromaDB** — base vectorial local, sin costo
+> - **Railway** — tier gratuito para los 3 microservicios
+> - **GitHub Actions** — CI/CD gratuito para repositorios públicos
+> - **Token de GitHub:** Genera uno en https://github.com/settings/tokens
+
+---
+## ¿Cómo funciona?
+
+![Flujo RAG](docs/architecture/flujo-consulta.drawio.png)
+
+
+---
+### Opciones de ejecución
+
+| Opción | Descripción | Requisitos |
+|---|---|---|
+| **Sistema en producción** | Sistema desplegado en Railway | Solo abrir el link |
+| **Docker local** | `docker-compose up --build` | Docker Desktop + token GitHub |
+| **Local manual** | Ejecutar cada servicio por separado | Python 3.11 + Node.js 22 |
+
+**URLs del sistema en producción:**
+- 🌐 Frontend: https://frontend-production-1bed.up.railway.app
+- 🤖 Agent API Docs: https://agent-production-065e.up.railway.app/docs
+- 🔧 MCP Server: https://rag-assistant-production-bb17.up.railway.app/mcp
+
+
+
+---
 ## Arquitectura
 
 ### C4 Nivel 1 — Contexto
@@ -47,7 +78,7 @@ El agente implementa una arquitectura de memoria en 3 niveles para mantener cont
 | Tipo | Implementación | Persistencia | Alcance |
 |---|---|---|---|
 | **Corto plazo** | MemorySaver LangGraph (RAM) | Solo sesión activa | Mensajes del turno actual por `thread_id` |
-| **Mediano plazo** | Resúmenes en SQLite | Entre sesiones | Contexto resumido de conversaciones anteriores — se genera automáticamente cuando una conversación supera 10 mensajes |
+| **Mediano plazo** | Resúmenes en SQLite | Entre sesiones | Contexto resumido — se genera automáticamente cuando una conversación supera 10 mensajes |
 | **Largo plazo** | SQLite via SQLAlchemy | Permanente | Historial completo de todas las conversaciones persistido en disco |
 
 ### Justificación
@@ -56,14 +87,13 @@ El agente implementa una arquitectura de memoria en 3 niveles para mantener cont
 - **Largo plazo** — SQLite dockerizable con volúmenes — migrable a PostgreSQL para producción sin cambiar el dominio (`MemoryRepository` es una interfaz)
 
 ### Memoria del Frontend
-Adicionalmente el frontend implementa persistencia del historial de conversaciones en **localStorage** del navegador:
+El frontend implementa persistencia del historial en **localStorage** del navegador:
 - Máximo 20 conversaciones guardadas
 - Cada conversación incluye mensajes, fuentes y metadatos
 - Persiste entre reinicios del navegador
 - El usuario puede navegar entre conversaciones anteriores desde el sidebar
-- Se limpia con el botón "Nueva conversación"
 
-> **Nota:** Esta capa es complementaria a la memoria del agente — el frontend guarda el historial visual mientras el agente mantiene el contexto conversacional en SQLite.
+
 ---
 
 ## Stack tecnológico
@@ -75,16 +105,35 @@ Adicionalmente el frontend implementa persistencia del historial de conversacion
 | Embeddings | text-embedding-3-large (GitHub Models) | 3072d, multilingüe, supera sentence-transformers en MTEB |
 | Base vectorial | ChromaDB | Local, sin costo, dockerizable, migrable a Qdrant/Pinecone |
 | LLM | GPT-4o (GitHub Models / Azure OpenAI) | 128k contexto, razonamiento financiero en español |
-| MCP Transport | Streamable HTTP | Permite múltiples clientes simultáneos vs stdio |
+| MCP Transport | Streamable HTTP + stdio | Producción y pruebas locales |
 | Agente | LangGraph | Grafos de estado, memoria estructurada, tool orchestration |
 | Frontend | React + TypeScript + Vite | Moderno, tipado, rápido |
 | CI/CD | GitHub Actions | Lint + test + docker build en cada push |
-
-
----
+| Despliegue | Railway | Tier gratuito, auto-deploy en cada push |
 
 ---
 
+## Fundamentos teóricos aplicados
+
+| Paper | Autores | Aplicación en este proyecto |
+|---|---|---|
+| [Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) | Lewis et al., 2020 | Base teórica de la arquitectura RAG — retrieval semántico + generación con LLM |
+| [MTEB: Massive Text Embedding Benchmark](https://arxiv.org/abs/2210.07316) | Muennighoff et al., 2022 | Justifica la elección de `text-embedding-3-large` por su superioridad en benchmarks de recuperación semántica en español |
+| [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) | Yao et al., 2022 | Patrón implementado en LangGraph `create_react_agent` — el agente razona y actúa invocando tools MCP |
+| [Lost in the Middle: How Language Models Use Long Contexts](https://arxiv.org/abs/2307.03172) | Liu et al., 2023 | Justifica el chunking de 500 palabras — los LLMs tienen dificultades con contextos muy largos |
+
+---
+
+
+## Decisiones técnicas
+
+Las decisiones de arquitectura están documentadas en detalle en el archivo [ADR.md](docs/decisions/ADR.md).
+
+Incluye 11 ADRs con contexto, justificación, alternativas descartadas, impacto de negocio, riesgos, seguridad y observabilidad.
+
+
+
+---
 ## Instalación y ejecución
 
 ### Prerrequisitos
@@ -116,7 +165,13 @@ Para habilitar el acceso a los modelos de GitHub, debes agregar tu `GITHUB_TOKEN
 GITHUB_TOKEN="[tu-github-token]"
 ```
 
-### Opción 1 — Docker (recomendado)
+### Opción 1 — Sistema en producción (Railway)
+
+Accede directamente sin instalar nada:
+
+🌐 https://frontend-production-1bed.up.railway.app
+
+### Opción 2 — Docker (recomendado)
 ```bash
 docker-compose up --build
 ```
@@ -126,7 +181,7 @@ Servicios disponibles:
 - Agent API: http://localhost:8001/docs
 - MCP Server: http://localhost:8000/mcp
 
-### Opción 2 — Ejecución local
+### Opción 3 — Ejecución local
 
 **1. Scraper** (solo primera vez):
 ```bash
@@ -200,8 +255,8 @@ Sin servidor corriendo previamente:
 
 En el inspector:
 - **Transport Type:** `STDIO`
-- **Command:** `C:\Prueba_tecnica\rag-assistant\mcp-server\.venv\Scripts\python.exe`
-- **Arguments:** `C:\Prueba_tecnica\rag-assistant\mcp-server\run_stdio.py`
+- **Command:** `C:\rag-assistant\mcp-server\.venv\Scripts\python.exe`
+- **Arguments:** `C:\rag-assistant\mcp-server\run_stdio.py`
 
 El script `run_stdio.py` carga automáticamente el `.env` y fuerza el transporte stdio.
 ---
@@ -214,27 +269,42 @@ Se ejecuta automáticamente en cada push a `main`:
 -  Build del frontend
 -  Build de imágenes Docker
 
-### Pipeline CD (documentado)
-Para despliegue en producción se recomienda:
+### Pipeline Scraper (GitHub Actions — Scheduled)
+Se ejecuta automáticamente cada día a las 2am:
+- Crawling incremental de bancolombia.com/personas
+- Detección de páginas nuevas, modificadas y eliminadas
+- Re-indexación en ChromaDB solo de páginas con cambios
+- Commit automático de datos actualizados
+- Railway redeploy automático al detectar el nuevo commit
 
-1. **Build y push de imágenes:**
-```bash
-docker build -t ghcr.io/leor22/bancolombia-mcp-server ./mcp-server
-docker build -t ghcr.io/leor22/bancolombia-agent ./agent
-docker build -t ghcr.io/leor22/bancolombia-frontend ./frontend
-docker push ghcr.io/leor22/bancolombia-mcp-server
-docker push ghcr.io/leor22/bancolombia-agent
-docker push ghcr.io/leor22/bancolombia-frontend
-```
+### Pipeline CD
+Railway despliega automáticamente en cada push a `main`:
+- MCP Server: https://rag-assistant-production-bb17.up.railway.app/mcp
+- Agent: https://agent-production-065e.up.railway.app/docs
+- Frontend: https://frontend-production-1bed.up.railway.app
 
-2. **Despliegue en servidor:**
-```bash
-docker-compose pull
-docker-compose up -d
-```
+---
+---
 
-Para automatizar el CD, agregar a `.github/workflows/cd.yml` con secrets
-`GITHUB_TOKEN` y `SERVER_SSH_KEY`.
+## Decisiones de Scraping
+
+### Profundidad de crawling
+Crawling sin límite artificial de profundidad — el proceso continúa hasta alcanzar el mínimo de 60 páginas válidas (`MIN_PAGES` configurable via `.env`). Se descubren URLs en lotes de 30 (`DISCOVERY_BATCH`) para evitar sobrecarga del servidor.
+
+### Manejo de contenido dinámico
+Bancolombia.com usa JavaScript rendering. Se eligió **crawl4ai + Playwright** (Chromium headless) con `wait_until="networkidle"`. Luego **trafilatura** extrae solo el contenido principal eliminando navegación, footers y banners.
+
+### robots.txt
+Cada URL se verifica contra `RobotFileParser` antes de procesarse. Las URLs bloqueadas se omiten y el pipeline continúa — garantizando resiliencia sin intervención manual.
+
+### Pipeline industrializado
+El scraper detecta cambios incrementales via `content_hash` MD5:
+- **Páginas nuevas** → se indexan en ChromaDB
+- **Páginas modificadas** → se re-indexan
+- **Sin cambios** → se omiten para eficiencia
+
+---
+
 
 ---
 
@@ -280,6 +350,7 @@ rag-assistant/
 - ChromaDB local no escala horizontalmente — para producción migrar a Qdrant o Pinecone
 - GitHub Models tiene rate limits en el tier gratuito — puede ralentizar indexaciones grandes
 - El historial de conversación se almacena en localStorage del navegador (máx. 20 conversaciones)
+- Railway tier gratuito tiene límite de $5 USD/mes — suficiente para evaluación
 
 ---
 

@@ -140,8 +140,8 @@ if __name__ == "__main__":
     host = os.getenv("AGENT_HOST", "0.0.0.0")
     port = int(os.getenv("AGENT_PORT", 8001))
 
-    logger.info(f"🚀 Iniciando Bancolombia RAG Agent")
-    logger.info(f"   Host: {host}:{port}")
-    logger.info(f"   Docs: http://{host}:{port}/docs")
+    logger.info(f"Iniciando Bancolombia RAG Agent")
+    logger.info(f"Host: {host}:{port}")
+    logger.info(f"Docs: http://{host}:{port}/docs")
 
     uvicorn.run(app, host=host, port=port)

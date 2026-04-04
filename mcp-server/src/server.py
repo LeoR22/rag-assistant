@@ -218,8 +218,8 @@ if __name__ == "__main__":
     host = os.getenv("MCP_SERVER_HOST", "0.0.0.0")
     port = int(os.getenv("MCP_SERVER_PORT", 8000))
 
-    logger.info(f"🚀 Iniciando servidor MCP")
-    logger.info(f"   Transporte: {transport}")
+    logger.info(f"Iniciando servidor MCP")
+    logger.info(f"Transporte: {transport}")
 
     if transport == "stdio":
         logger.info(f"   Modo: stdio")

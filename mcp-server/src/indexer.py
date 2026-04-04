@@ -70,12 +70,12 @@ def create_documents_from_pages(pages: list) -> list[Document]:
 def main():
     raw_data_path = os.getenv("RAW_DATA_PATH", "../scraper/data/raw")
 
-    logger.info("🚀 Iniciando indexador de conocimiento")
-    logger.info(f"📂 Leyendo datos desde: {raw_data_path}")
+    logger.info("Iniciando indexador de conocimiento")
+    logger.info(f"Leyendo datos desde: {raw_data_path}")
 
     # 1. Cargar páginas
     pages = load_pages_from_json(raw_data_path)
-    logger.info(f"✅ Páginas cargadas: {len(pages)}")
+    logger.info(f"Páginas cargadas: {len(pages)}")
 
     # 2. Crear documentos con chunks
     documents = create_documents_from_pages(pages)

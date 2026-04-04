@@ -24,7 +24,7 @@ class CrawlWebsiteUseCase:
         self._crawler = crawler_repository
 
     async def execute(self, base_url: str) -> List[Page]:
-        logger.info(f"🚀 Crawling sin límite — para solo al llegar a {self.MIN_PAGES} páginas válidas")
+        logger.info(f"Crawling sin límite — para solo al llegar a {self.MIN_PAGES} páginas válidas")
 
         pages: List[Page] = []
         failed: List[str] = []
@@ -100,11 +100,11 @@ class CrawlWebsiteUseCase:
 
     def _log_summary(self, pages, failed, skipped):
         logger.info("=" * 50)
-        logger.success(f"✅ Páginas válidas:  {len(pages)}")
-        logger.info(f"❌ Páginas fallidas: {len(failed)}")
-        logger.info(f"⏭️  Omitidas robots: {len(skipped)}")
+        logger.success(f"Páginas válidas:  {len(pages)}")
+        logger.info(f"Páginas fallidas: {len(failed)}")
+        logger.info(f"Omitidas robots: {len(skipped)}")
         if len(pages) >= self.MIN_PAGES:
-            logger.success(f"✅ Meta de {self.MIN_PAGES} páginas alcanzada")
+            logger.success(f"Meta de {self.MIN_PAGES} páginas alcanzada")
         else:
-            logger.warning(f"⚠️ Solo {len(pages)} páginas — sitio sin más URLs disponibles")
+            logger.warning(f"Solo {len(pages)} páginas — sitio sin más URLs disponibles")
         logger.info("=" * 50)
