@@ -16,7 +16,8 @@ from application.use_cases.get_article import GetArticleByUrlUseCase
 from application.use_cases.list_categories import ListCategoriesUseCase
 from infrastructure.vector_store.chroma_repository import ChromaRepository
 
-load_dotenv()
+# No sobreescribe variables ya definidas
+load_dotenv(override=False)  
 
 # ── Inicialización ──────────────────────────────────────────
 mcp = fastmcp.FastMCP(
@@ -228,6 +229,7 @@ if __name__ == "__main__":
         logger.info(f"   MCP URL: http://{host}:{port}/mcp")
         logger.info(f"   Health:  http://{host}:{port}/health")
         mcp.run(
+            transport=transport,
             host=host,
             port=port,
         )

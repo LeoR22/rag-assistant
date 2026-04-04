@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
 
   mcp-server:
@@ -17,11 +15,13 @@ services:
     environment:
       - RAW_DATA_PATH=/app/scraper_data/raw
       - CHROMA_PATH=/app/data/chroma
+      - MCP_TRANSPORT=streamable-http
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   agent:
@@ -37,14 +37,16 @@ services:
       - ./agent/.env
     environment:
       - MCP_SERVER_URL=http://mcp-server:8000/mcp
+      - LONG_TERM_DB_PATH=/app/data/memory.db
     depends_on:
       mcp-server:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   frontend:
@@ -54,12 +56,7 @@ services:
     container_name: bancolombia-frontend
     ports:
       - "3000:3000"
-    environment:
-      - VITE_AGENT_URL=http://localhost:8001
     depends_on:
-      - agent
+      agent:
+        condition: service_healthy
     restart: unless-stopped
-
-volumes:
-  mcp_data:
-  agent_data:
