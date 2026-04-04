@@ -22,7 +22,7 @@ from application.use_cases.process_message import ProcessMessageUseCase
 limiter = Limiter(key_func=get_remote_address)
 
 
-load_dotenv()
+load_dotenv(override=False) 
 
 # ── FastAPI App ─────────────────────────────────────────────
 app = FastAPI(
