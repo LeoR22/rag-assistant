@@ -38,6 +38,7 @@ jobs:
         working-directory: ./scraper
         env:
           BASE_URL: https://www.bancolombia.com/personas
+          BASE_DOMAIN: https://www.bancolombia.com
           MIN_PAGES: 60
           DISCOVERY_BATCH: 30
           OUTPUT_DIR: data/raw

@@ -16,8 +16,8 @@ load_dotenv()
 class BancolombiaCrawler:
     """Implementación concreta del crawler para el sitio de Bancolombia"""
 
-    BASE_URL = os.getenv("BASE_DOMAIN")
-    PAGE_TIMEOUT = int(os.getenv("PAGE_TIMEOUT"))
+    BASE_URL = os.getenv("BASE_DOMAIN", "https://www.bancolombia.com")
+    PAGE_TIMEOUT = int(os.getenv("PAGE_TIMEOUT", "60000"))
 
 
     CATEGORIES = {
