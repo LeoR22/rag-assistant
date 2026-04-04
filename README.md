@@ -28,7 +28,7 @@ Asistente virtual del Grupo Bancolombia que responda preguntas sobre productos, 
 ---
 ## ¿Cómo funciona?
 
-![Flujo RAG](docs/architecture/flujo-consulta.drawio.png)
+![Flujo RAG](docs/architecture/Flujo-consulta.drawio.png)
 
 
 ---
@@ -347,10 +347,10 @@ rag-assistant/
 ## Limitaciones conocidas
 
 - El scraper puede no acceder a páginas con protección antibot avanzada de Bancolombia
-- ChromaDB local no escala horizontalmente — para producción migrar a Qdrant o Pinecone
-- GitHub Models tiene rate limits en el tier gratuito — puede ralentizar indexaciones grandes
+- ChromaDB local no escala horizontalmente  pero se podria migrar a Qdrant o Pinecone
+- GitHub Models tiene rate limits en el tier gratuito lo que puede ralentizar indexaciones grandes
 - El historial de conversación se almacena en localStorage del navegador (máx. 20 conversaciones)
-- Railway tier gratuito tiene límite de $5 USD/mes — suficiente para evaluación
+- Railway tier gratuito tiene límite de $5 USD/mes lo que es suficiente para evaluación
 
 ---
 
