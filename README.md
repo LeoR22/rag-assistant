@@ -1,4 +1,5 @@
-# RAG Assistant
+# RAG Assistant — Bancolombia Virtual Assistant
+
 ![Python](https://img.shields.io/badge/python-3670A0?style=flat&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
 ![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
@@ -12,26 +13,22 @@
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat&logo=python&logoColor=white)
 ![Azure](https://img.shields.io/badge/Azure_OpenAI-0089D6?style=flat&logo=microsoft-azure&logoColor=white)
+![Langfuse](https://img.shields.io/badge/Langfuse-Observability-blue?style=flat&logo=grafana&logoColor=white)
 
-Asistente virtual del Grupo Bancolombia que responda preguntas sobre productos, servicios y contenido publicado en la sección de personas del sitio web,utilizando una arquitectura RAG con un agente conversacional accesible mediante unainterfaz de chat.
+Asistente virtual del Grupo Bancolombia que responde preguntas sobre productos, servicios y contenido publicado en la sección de personas del sitio web, utilizando una arquitectura RAG con un agente conversacional accesible mediante una interfaz de chat.
 
 ---
-## Nota:
 
-> - **Sin costos** — La solución usa exclusivamente servicios gratuitos:
+## Nota para el evaluador
+
+> La solución usa exclusivamente servicios gratuitos:
 > - **GitHub Models** (Azure OpenAI) — gratuito con token de GitHub
 > - **ChromaDB** — base vectorial local, sin costo
 > - **Railway** — tier gratuito para los 3 microservicios
 > - **GitHub Actions** — CI/CD gratuito para repositorios públicos
-> - **Token de GitHub:** Genera uno en https://github.com/settings/tokens
+>
+> Genera tu token de GitHub en https://github.com/settings/tokens — no requiere scopes especiales ni tarjeta de crédito.
 
----
-## ¿Cómo funciona?
-
-![Flujo RAG](docs/architecture/Flujo-consulta.drawio.png)
-
-
----
 ### Opciones de ejecución
 
 | Opción | Descripción | Requisitos |
@@ -41,13 +38,18 @@ Asistente virtual del Grupo Bancolombia que responda preguntas sobre productos, 
 | **Local manual** | Ejecutar cada servicio por separado | Python 3.11 + Node.js 22 |
 
 **URLs del sistema en producción:**
-- 🌐 Frontend: https://frontend-production-1bed.up.railway.app
-- 🤖 Agent API Docs: https://agent-production-065e.up.railway.app/docs
-- 🔧 MCP Server: https://rag-assistant-production-bb17.up.railway.app/mcp
-
-
+- Frontend: https://frontend-production-1bed.up.railway.app
+- Agent API Docs: https://agent-production-065e.up.railway.app/docs
+- MCP Server: https://rag-assistant-production-bb17.up.railway.app/mcp
 
 ---
+
+## Flujo de una consulta
+
+![Flujo RAG](docs/architecture/Flujo-consulta.drawio.png)
+
+---
+
 ## Arquitectura
 
 ### C4 Nivel 1 — Contexto
@@ -71,6 +73,7 @@ Asistente virtual del Grupo Bancolombia que responda preguntas sobre productos, 
 | **Frontend** | React · TypeScript | 3000 | Interfaz de chat con historial y fuentes |
 
 ---
+
 ## Memoria del Agente — 3 niveles
 
 El agente implementa una arquitectura de memoria en 3 niveles para mantener contexto conversacional:
@@ -93,7 +96,6 @@ El frontend implementa persistencia del historial en **localStorage** del navega
 - Persiste entre reinicios del navegador
 - El usuario puede navegar entre conversaciones anteriores desde el sidebar
 
-
 ---
 
 ## Stack tecnológico
@@ -108,6 +110,7 @@ El frontend implementa persistencia del historial en **localStorage** del navega
 | MCP Transport | Streamable HTTP + stdio | Producción y pruebas locales |
 | Agente | LangGraph | Grafos de estado, memoria estructurada, tool orchestration |
 | Frontend | React + TypeScript + Vite | Moderno, tipado, rápido |
+| Observabilidad | Langfuse | Trazabilidad completa de interacciones LLM |
 | CI/CD | GitHub Actions | Lint + test + docker build en cada push |
 | Despliegue | Railway | Tier gratuito, auto-deploy en cada push |
 
@@ -124,16 +127,52 @@ El frontend implementa persistencia del historial en **localStorage** del navega
 
 ---
 
-
 ## Decisiones técnicas
 
 Las decisiones de arquitectura están documentadas en detalle en el archivo [ADR.md](docs/decisions/ADR.md).
 
 Incluye 11 ADRs con contexto, justificación, alternativas descartadas, impacto de negocio, riesgos, seguridad y observabilidad.
 
+---
 
+## Observabilidad — Langfuse
+
+El sistema implementa trazabilidad completa de todas las interacciones con el LLM via **Langfuse**, permitiendo monitorear en tiempo real cada consulta del asistente.
+
+### Acceso al dashboard
+
+| Campo | Valor |
+|---|---|
+| URL | https://us.cloud.langfuse.com |
+| Email | `demosprojects2026@gmail.com` |
+| Contraseña | `2026*demosprojects.` |
+| Proyecto | `bancolombia-rag` |
+
+### Guía de acceso
+
+**1. Inicio de sesión**
+
+![Inicio de sesión](docs/img/llm0.png)
+
+**2. Ingreso de contraseña**
+
+![Contraseña](docs/img/llm1.png)
+
+**3. Dashboard de trazas LLM**
+
+![Trazas LLM](docs/img/llm2.png)
+
+### Métricas disponibles por traza
+
+- Prompt enviado al LLM con contexto RAG
+- Respuesta generada por GPT-4o
+- Tools MCP invocadas (`search_knowledge_base`, `get_article_by_url`, `list_categories`)
+- Tokens usados (prompt + completion)
+- Latencia por request en milisegundos
+- Historial completo de conversaciones
 
 ---
+
 ## Instalación y ejecución
 
 ### Prerrequisitos
@@ -144,34 +183,32 @@ Incluye 11 ADRs con contexto, justificación, alternativas descartadas, impacto 
 - Token de GitHub con acceso a GitHub Models
 
 ### Variables de entorno
-
-Copia los `.env.example` de cada microservicio:
 ```bash
 cp scraper/.env.example scraper/.env
 cp mcp-server/.env.example mcp-server/.env
 cp agent/.env.example agent/.env
 ```
 
-### 🔐 Configuración del archivo .env para autenticación
-Para habilitar el acceso a los modelos de GitHub, debes agregar tu `GITHUB_TOKEN` en `mcp-server/.env` y `agent/.env`.
+### Configuración del token de GitHub
 
-🔑 Genera tu token personal en el siguiente enlace: 
-[Playground de GitHub Models](https://github.com/marketplace/models/azure-openai/gpt-4o/playground)
+Genera tu token en [GitHub Models Playground](https://github.com/marketplace/models/azure-openai/gpt-4o/playground) y agrégalo en `mcp-server/.env` y `agent/.env`:
 
-🖼️ Ejemplo visual:
-![token](docs/img/token.png)
-
+![Token](docs/img/token.png)
+```env
+GITHUB_TOKEN="tu-github-token"
 ```
-GITHUB_TOKEN="[tu-github-token]"
-```
+
+---
 
 ### Opción 1 — Sistema en producción (Railway)
 
 Accede directamente sin instalar nada:
 
-🌐 https://frontend-production-1bed.up.railway.app
+https://frontend-production-1bed.up.railway.app
 
-### Opción 2 — Docker (recomendado)
+---
+
+### Opción 2 — Docker local
 ```bash
 docker-compose up --build
 ```
@@ -180,6 +217,8 @@ Servicios disponibles:
 - Frontend: http://localhost:3000
 - Agent API: http://localhost:8001/docs
 - MCP Server: http://localhost:8000/mcp
+
+---
 
 ### Opción 3 — Ejecución local
 
@@ -233,8 +272,9 @@ cd mcp-server && uv run pytest tests/ -v
 cd agent && uv run pytest tests/ -v
 ```
 
-**Resultado:** 16 tests pasando ✅
+**Resultado:** 16 tests pasando
 
+---
 
 ## MCP Inspector — Pruebas locales
 
@@ -251,23 +291,22 @@ En el inspector:
 - **Connection Type:** `Via Proxy`
 
 ### STDIO (pruebas locales)
-Sin servidor corriendo previamente:
-
-En el inspector:
+Sin servidor corriendo previamente. En el inspector:
 - **Transport Type:** `STDIO`
 - **Command:** `C:\rag-assistant\mcp-server\.venv\Scripts\python.exe`
 - **Arguments:** `C:\rag-assistant\mcp-server\run_stdio.py`
 
 El script `run_stdio.py` carga automáticamente el `.env` y fuerza el transporte stdio.
+
 ---
 
 ## CI/CD
 
 ### Pipeline CI (GitHub Actions)
 Se ejecuta automáticamente en cada push a `main`:
--  Lint y tests de scraper, mcp-server y agent
--  Build del frontend
--  Build de imágenes Docker
+- Lint y tests de scraper, mcp-server y agent
+- Build del frontend
+- Build de imágenes Docker
 
 ### Pipeline Scraper (GitHub Actions — Scheduled)
 Se ejecuta automáticamente cada día a las 2am:
@@ -284,7 +323,6 @@ Railway despliega automáticamente en cada push a `main`:
 - Frontend: https://frontend-production-1bed.up.railway.app
 
 ---
----
 
 ## Decisiones de Scraping
 
@@ -299,12 +337,36 @@ Cada URL se verifica contra `RobotFileParser` antes de procesarse. Las URLs bloq
 
 ### Pipeline industrializado
 El scraper detecta cambios incrementales via `content_hash` MD5:
-- **Páginas nuevas** → se indexan en ChromaDB
-- **Páginas modificadas** → se re-indexan
-- **Sin cambios** → se omiten para eficiencia
+- **Páginas nuevas** — se indexan en ChromaDB
+- **Páginas modificadas** — se re-indexan
+- **Sin cambios** — se omiten para eficiencia
 
 ---
 
+## Mejoras futuras (Roadmap)
+
+Aunque la solución cumple los requerimientos, se identificaron mejoras clave para evolucionar a producción:
+
+### Retrieval avanzado
+- Hybrid search — combinar BM25 + vector search para mayor precisión
+- Reranking con cross-encoder (ms-marco-MiniLM) — reordenar top-20 a top-5
+- Semantic caching con Redis — cache de queries frecuentes para reducir latencia
+- GraphRAG — grafos de conocimiento para capturar relaciones entre productos
+
+### Seguridad
+- OAuth2 / JWT — autenticación entre Frontend y Agent
+- API Key rotation automática para GitHub Models
+- Auditoría de accesos — registro de queries y respuestas
+
+### Observabilidad
+- OpenTelemetry — trazas distribuidas entre los 4 microservicios
+- Prometheus + Grafana — métricas de latencia, uso de tools, cache hits
+- Alertas automáticas cuando el retrieval supera 2 segundos
+
+### Escalabilidad
+- Qdrant o Pinecone — migración sin cambiar dominio (VectorRepository es interfaz)
+- MCP stateless con load balancer para múltiples réplicas
+- Redis para cache distribuido y gestión de sesiones concurrentes
 
 ---
 
@@ -347,21 +409,21 @@ rag-assistant/
 ## Limitaciones conocidas
 
 - El scraper puede no acceder a páginas con protección antibot avanzada de Bancolombia
-- ChromaDB local no escala horizontalmente  pero se podria migrar a Qdrant o Pinecone
-- GitHub Models tiene rate limits en el tier gratuito lo que puede ralentizar indexaciones grandes
+- ChromaDB local no escala horizontalmente, para producción migrar a Qdrant o Pinecone
+- GitHub Models tiene rate limits en el tier gratuito, puede ralentizar indexaciones grandes
 - El historial de conversación se almacena en localStorage del navegador (máx. 20 conversaciones)
-- Railway tier gratuito tiene límite de $5 USD/mes lo que es suficiente para evaluación
+- Railway tier gratuito tiene límite de $5 USD/mes, suficiente para evaluación
 
 ---
 
 ## Licencia
 
-Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+Este proyecto está licenciado bajo la Licencia MIT.
 
 ## Contacto
 
-- Leandro Rivera: <leo.232rivera@gmail.com>
-- Linkedin: <https://www.linkedin.com/in/leandrorivera/>
+- Leandro Rivera: leo.232rivera@gmail.com
+- LinkedIn: https://www.linkedin.com/in/leandrorivera/
 
 ### ¡Feliz Codificación! 🚀
 
