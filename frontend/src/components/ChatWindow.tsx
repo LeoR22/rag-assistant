@@ -20,6 +20,7 @@ interface SavedConversation {
 }
 
 const CONVERSATIONS_KEY = 'bancolombia_conversations'
+ 
 
 export const ChatWindow = () => {
   const { messages, isLoading, error, sendQuery, clearChat, conversationId, loadConversation } = useChat()
@@ -125,7 +126,7 @@ export const ChatWindow = () => {
       <div style={{
         width: sidebarOpen ? '260px' : '0px',
         minWidth: sidebarOpen ? '260px' : '0px',
-        backgroundColor: '#111111',
+        backgroundColor: '#2C2C2C',
         display: 'flex',
         flexDirection: 'column',
         transition: 'all 0.3s ease',
@@ -160,6 +161,7 @@ export const ChatWindow = () => {
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
+
           {savedConversations.length === 0 ? (
             <p style={{ color: '#666', fontSize: '12px', textAlign: 'center', padding: '20px 10px' }}>
               Tus conversaciones aparecerán aquí
@@ -261,11 +263,13 @@ export const ChatWindow = () => {
             >
               ☰
             </button>
-            <img
-              src="/bancolombia-logo.png"
-              alt="Bancolombia"
-              style={{ width: '100px', height: '40px', objectFit: 'contain' }}
-            />
+            {!sidebarOpen && (
+              <img
+                src="/bancolombia-logo.png"
+                alt="Bancolombia"
+                style={{ width: '100px', height: '40px', objectFit: 'contain' }}
+              />
+            )}
             <div>
               <p style={{ margin: 0, color: '#FFFFFF', fontWeight: 700, fontSize: '16px' }}>
                 Asistente Bancolombia
@@ -294,94 +298,120 @@ export const ChatWindow = () => {
             Conversación: {activeConvId.slice(0, 8)}...
           </div>
         )}
-
+  
         {/* Messages */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-          {messages.length === 0 && (
-            <div style={{ textAlign: 'center', marginTop: '40px' }}>
-              <img
-                src="/logo.png"
-                alt="Bancolombia"
-                style={{ width: '100px', height: 'auto', margin: '0 auto 20px', display: 'block' }}
-              />
-              <h2 style={{ color: '#000', margin: '0 0 8px', fontSize: '22px', fontWeight: 700 }}>
-                ¡Hola! Soy el asistente de Bancolombia
-              </h2>
-              <p style={{ color: '#666', margin: '0 0 32px', fontSize: '14px' }}>
-                Puedo ayudarte con información sobre productos y servicios de Bancolombia
-              </p>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                gap: '10px',
-                maxWidth: '700px',
-                margin: '0 auto',
-              }}>
-                {SUGGESTED_QUESTIONS.map((q, i) => (
-                  <button
-                    key={i}
-                    onClick={() => sendQuery(q)}
-                    style={{
-                      backgroundColor: '#FFF',
-                      border: '2px solid #FDDA24',
-                      borderRadius: '12px',
-                      padding: '12px 16px',
-                      cursor: 'pointer',
-                      fontSize: '13px',
-                      color: '#333',
-                      textAlign: 'left',
-                      transition: 'all 0.2s',
-                      fontWeight: 500,
-                    }}
-                    onMouseOver={e => (e.currentTarget.style.backgroundColor = '#FDDA24')}
-                    onMouseOut={e => (e.currentTarget.style.backgroundColor = '#FFF')}
-                  >
-                    {q}
-                  </button>
-                ))}
+        <div style={{ 
+          flex: 1, 
+          overflowY: 'auto', 
+          padding: '24px',
+          backgroundColor: '#F5F5F5',
+          position: 'relative',
+        }}>
+          {/* Imagen de fondo sutil */}
+          <div style={{
+            position: 'fixed',
+            top: '64px',
+            left: sidebarOpen ? '260px' : '0px',
+            right: 0,
+            bottom: '80px',
+            backgroundImage: 'url(/trazo-onda-1.png)',
+            backgroundSize: '100%',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: 0.10,
+            pointerEvents: 'none',
+            zIndex: 0,
+            transition: 'left 0.3s ease',
+          }} />
+
+          {/* Contenido encima de la imagen */}
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            {messages.length === 0 && (
+              <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                <img
+                  src="/logo.png"
+                  alt="Bancolombia"
+                  style={{ width: '100px', height: 'auto', margin: '0 auto 20px', display: 'block' }}
+                />
+                <h2 style={{ color: '#000', margin: '0 0 8px', fontSize: '22px', fontWeight: 700 }}>
+                  ¡Hola! Soy el asistente de Bancolombia
+                </h2>
+                <p style={{ color: '#666', margin: '0 0 32px', fontSize: '14px' }}>
+                  Puedo ayudarte con información sobre productos y servicios de Bancolombia
+                </p>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '10px',
+                  maxWidth: '700px',
+                  margin: '0 auto',
+                }}>
+                  {SUGGESTED_QUESTIONS.map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => sendQuery(q)}
+                      style={{
+                        backgroundColor: '#FFF',
+                        border: '2px solid #FDDA24',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        color: '#333',
+                        textAlign: 'left',
+                        transition: 'all 0.2s',
+                        fontWeight: 500,
+                      }}
+                      onMouseOver={e => (e.currentTarget.style.backgroundColor = '#FDDA24')}
+                      onMouseOut={e => (e.currentTarget.style.backgroundColor = '#FFF')}
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {messages.map(message => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+            {messages.map(message => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
 
-          {isLoading && (
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '16px' }}>
-              <img
-                src="/chat.png"
-                alt="Asistente"
-                style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-              />
-              <div style={{
-                backgroundColor: '#FFF', padding: '12px 16px',
-                borderRadius: '18px 18px 18px 4px',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                display: 'flex', gap: '6px', alignItems: 'center',
-              }}>
-                {[0, 1, 2].map(i => (
-                  <div key={i} style={{
-                    width: '8px', height: '8px', borderRadius: '50%',
-                    backgroundColor: '#FDDA24',
-                    animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
-                  }} />
-                ))}
+            {isLoading && (
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <img
+                  src="/chat.png"
+                  alt="Asistente"
+                  style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                />
+                <div style={{
+                  backgroundColor: '#FFF', padding: '12px 16px',
+                  borderRadius: '18px 18px 18px 4px',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+                  display: 'flex', gap: '6px', alignItems: 'center',
+                }}>
+                  {[0, 1, 2].map(i => (
+                    <div key={i} style={{
+                      width: '8px', height: '8px', borderRadius: '50%',
+                      backgroundColor: '#FDDA24',
+                      animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
+                    }} />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {error && (
-            <div style={{
-              backgroundColor: '#FFF3CD', border: '1px solid #FDDA24',
-              borderRadius: '8px', padding: '12px 16px',
-              color: '#856404', fontSize: '14px', marginBottom: '16px',
-            }}>
-              ⚠️ {error}
-            </div>
-          )}
+            {error && (
+              <div style={{
+                backgroundColor: '#FFF3CD', border: '1px solid #FDDA24',
+                borderRadius: '8px', padding: '12px 16px',
+                color: '#856404', fontSize: '14px', marginBottom: '16px',
+              }}>
+                ⚠️ {error}
+              </div>
+            )}
 
-          <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {/* Input */}
