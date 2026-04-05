@@ -25,7 +25,7 @@ const CONVERSATIONS_KEY = 'bancolombia_conversations'
 export const ChatWindow = () => {
   const { messages, isLoading, error, sendQuery, clearChat, conversationId, loadConversation } = useChat()
   const [input, setInput] = useState('')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeConvId, setActiveConvId] = useState<string | undefined>(undefined)
   const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => {
     try {
