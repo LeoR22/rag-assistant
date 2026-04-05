@@ -3,6 +3,7 @@ from loguru import logger
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
+from langfuse.langchain import CallbackHandler
 
 load_dotenv()
 
@@ -13,6 +14,7 @@ def build_agent():
     - GPT-4o via GitHub Models como LLM
     - Tools del servidor MCP como capacidades de búsqueda
     - MemorySaver para memoria corto plazo entre turnos
+    - Langfuse para observabilidad
     """
 
     token = os.getenv("GITHUB_TOKEN")
@@ -45,17 +47,30 @@ def build_agent():
         }
     }
 
-    #Memoria corto plazo para mantener contexto entre turnos
     memory = MemorySaver()
-    logger.success("Agente LangGraph construido exitosamente")
 
-    return llm, mcp_config, memory
+    # Langfuse handler — opcional, solo si las keys están configuradas
+    langfuse_handler = None
+    langfuse_public_key = os.getenv("LANGFUSE_PUBLIC_KEY")
+    langfuse_secret_key = os.getenv("LANGFUSE_SECRET_KEY")
+    if langfuse_public_key and langfuse_secret_key:
+        os.environ["LANGFUSE_PUBLIC_KEY"] = langfuse_public_key
+        os.environ["LANGFUSE_SECRET_KEY"] = langfuse_secret_key
+        os.environ["LANGFUSE_HOST"] = os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+        langfuse_handler = CallbackHandler()
+        logger.success("Langfuse observabilidad activada")
+    else:
+        logger.warning("Langfuse no configurado — observabilidad desactivada")
+
+    return llm, mcp_config, memory, langfuse_handler
 
 
 SYSTEM_PROMPT = """Eres un asistente virtual experto en productos y servicios del Grupo Bancolombia.
 
 Tu conocimiento proviene exclusivamente de la información indexada del sitio web bancolombia.com/personas.
+
 {memory_context}
+
 Reglas:
 1. SIEMPRE usa la tool search_knowledge_base para buscar información antes de responder preguntas sobre Bancolombia.
 2. SIEMPRE cita las URLs de las fuentes al final de tu respuesta.

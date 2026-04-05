@@ -24,7 +24,8 @@ class ProcessMessageUseCase:
     def __init__(self):
         self._long_term = LongTermMemory()
         self._short_term = ShortTermMemory()
-        self._llm, self._mcp_config, self._memory = build_agent()
+        #self._llm, self._mcp_config, self._memory = build_agent()
+        self._llm, self._mcp_config, self._memory, self._langfuse = build_agent()
 
     async def execute(self, query: str, conversation_id: str) -> dict:
         logger.info(f"Procesando mensaje — conversación: {conversation_id}")
@@ -63,8 +64,14 @@ class ProcessMessageUseCase:
             checkpointer=self._memory,
         )
 
-        config = {"configurable": {"thread_id": conversation_id}}
+        #config = {"configurable": {"thread_id": conversation_id}}
+        callbacks = [self._langfuse] if self._langfuse else []
+        config = {
+            "configurable": {"thread_id": conversation_id},
+            "callbacks": callbacks,
+        }
 
+        
         result = await agent.ainvoke(
             {"messages": history},
             config=config,
