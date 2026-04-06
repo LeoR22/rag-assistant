@@ -67,7 +67,9 @@ export const useChat = () => {
   const loadConversation = useCallback((savedMessages: Message[], savedConvId: string) => {
     setMessages(savedMessages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })))
     setConversationId(savedConvId)
-    currentConvId.current = savedConvId
+    // No restauramos currentConvId para que preguntas nuevas
+    // inicien una nueva sesión en el agente sin el historial viejo
+    currentConvId.current = undefined
   }, [])
 
   return {

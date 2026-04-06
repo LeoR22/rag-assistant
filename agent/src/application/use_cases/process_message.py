@@ -14,6 +14,8 @@ from application.use_cases.manage_memory import ManageMemoryUseCase
 
 load_dotenv()
 
+MAX_MESSAGES = 8  # Últimos 4 turnos para no superar token limit de GitHub Models
+
 
 class ProcessMessageUseCase:
     """
@@ -23,37 +25,41 @@ class ProcessMessageUseCase:
 
     def __init__(self):
         self._long_term = LongTermMemory()
-        self._short_term = ShortTermMemory()
-        #self._llm, self._mcp_config, self._memory = build_agent()
         self._llm, self._mcp_config, self._memory, self._langfuse = build_agent()
+        # ShortTermMemory se crea por conversación, no aquí
 
     async def execute(self, query: str, conversation_id: str) -> dict:
         logger.info(f"Procesando mensaje — conversación: {conversation_id}")
 
-        # Obtiene o crea conversación
         conversation = self._long_term.get_conversation(conversation_id)
         if not conversation:
             conversation = self._long_term.create_conversation(conversation_id)
 
-        # Guarda mensaje del usuario
         user_message = Message.user(
             content=query,
             conversation_id=conversation_id,
         )
         self._long_term.save_message(user_message)
-        self._short_term.add_user_message(query)
 
-        # Construye historial
-        history = self._short_term.get_messages()
+        # ShortTermMemory por conversación — evita mezclar historiales
+        short_term = ShortTermMemory()
+        conversation = self._long_term.get_conversation(conversation_id)
+        if conversation:
+            for msg in conversation.messages[-MAX_MESSAGES:]:
+                if msg.role == MessageRole.USER:
+                    short_term.add_user_message(msg.content)
+                elif msg.role == MessageRole.ASSISTANT:
+                    short_term.add_assistant_message(msg.content)
 
-        # Obtiene contexto de memoria mediano plazo
+        # Historial ya viene trimado desde long_term (últimos MAX_MESSAGES)
+        history = short_term.get_messages()
+
         manage_memory = ManageMemoryUseCase()
         memory_context = manage_memory.get_context_from_history(conversation_id)
         prompt = SYSTEM_PROMPT
         if memory_context:
             prompt = SYSTEM_PROMPT + f"\n\n{memory_context}"
 
-        # Ejecuta el agente con las tools MCP — nueva API 0.1.0
         client = MultiServerMCPClient(self._mcp_config)
         tools = await client.get_tools()
 
@@ -64,42 +70,36 @@ class ProcessMessageUseCase:
             checkpointer=self._memory,
         )
 
-        #config = {"configurable": {"thread_id": conversation_id}}
         callbacks = [self._langfuse] if self._langfuse else []
         config = {
             "configurable": {"thread_id": conversation_id},
             "callbacks": callbacks,
         }
 
-        
         result = await agent.ainvoke(
             {"messages": history},
             config=config,
         )
 
-        # Extrae respuesta y fuentes
         last_message = result["messages"][-1]
         response_content = last_message.content
 
-        # Extrae fuentes de los tool calls
         sources = self._extract_sources(result["messages"])
 
-        # Guarda respuesta del asistente
         assistant_message = Message.assistant(
             content=response_content,
             conversation_id=conversation_id,
             sources=sources,
         )
         self._long_term.save_message(assistant_message)
-        self._short_term.add_assistant_message(response_content)
-        # Genera resumen si la conversación supera 10 mensajes (memoria mediano plazo)
+
+        # Genera resumen si la conversación supera 10 mensajes
         conversation = self._long_term.get_conversation(conversation_id)
         if conversation and len(conversation.messages) >= 10:
             manage_memory = ManageMemoryUseCase()
             await manage_memory.summarize_conversation(conversation_id)
 
         logger.success(f"Respuesta generada — fuentes: {len(sources)}")
-
         return {
             "conversation_id": conversation_id,
             "response": response_content,
@@ -123,7 +123,6 @@ class ProcessMessageUseCase:
         for message in messages:
             content = message.content if hasattr(message, "content") else ""
 
-            # Tool messages retornan lista de contenidos
             if isinstance(content, list):
                 for block in content:
                     if isinstance(block, dict) and block.get("type") == "text":
