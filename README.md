@@ -258,7 +258,7 @@ cd mcp-server && uv run pytest tests/ -v
 cd agent && uv run pytest tests/ -v
 ```
 
-**Resultado:** 16 tests pasando
+**Resultado:** 30 tests pasando
 
 ---
 
