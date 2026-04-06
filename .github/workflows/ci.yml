@@ -28,7 +28,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./scraper
-        run: uv run pytest tests/ -v --tb=short || true
+        run: uv run pytest tests/ -v --tb=short
 
   lint-mcp-server:
     name: Lint & Test MCP Server
@@ -50,7 +50,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./mcp-server
-        run: uv run pytest tests/ -v --tb=short || true
+        run: uv run pytest tests/ -v --tb=short
 
   lint-agent:
     name: Lint & Test Agent
@@ -72,7 +72,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./agent
-        run: uv run pytest tests/ -v --tb=short || true
+        run: uv run pytest tests/ -v --tb=short
 
   lint-frontend:
     name: Lint & Build Frontend
