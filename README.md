@@ -106,7 +106,8 @@ El frontend implementa persistencia del historial en **localStorage** del navega
 | Limpieza | trafilatura | Extrae solo contenido relevante |
 | Embeddings | text-embedding-3-large (GitHub Models) | 3072d, multilingüe, supera sentence-transformers en MTEB |
 | Base vectorial | ChromaDB | Local, sin costo, dockerizable, migrable a Qdrant/Pinecone |
-| LLM | GPT-4o (GitHub Models / Azure OpenAI) | 128k contexto, razonamiento financiero en español |
+| Embeddings | text-embedding-3-large (GitHub Models) | 3072d, multilingüe, supera sentence-transformers en MTEB |
+| LLM | GPT OSS 20B (Groq) | 1000 T/seg, function calling estable, 131k contexto |
 | MCP Transport | Streamable HTTP + stdio | Producción y pruebas locales |
 | Agente | LangGraph | Grafos de estado, memoria estructurada, tool orchestration |
 | Frontend | React + TypeScript + Vite | Moderno, tipado, rápido |
@@ -325,6 +326,37 @@ El scraper detecta cambios incrementales via `content_hash` MD5:
 - **Páginas nuevas** — se indexan en ChromaDB
 - **Páginas modificadas** — se re-indexan
 - **Sin cambios** — se omiten para eficiencia
+
+### Estrategia de Chunking
+
+| Parámetro | Valor | Justificación |
+|---|---|---|
+| Tamaño del chunk | 500 palabras (~750 tokens) | Basado en "Lost in the Middle" paper — LLMs tienen dificultades con contextos muy largos |
+| Overlap | 50 palabras (10%) | Preserva contexto semántico entre chunks contiguos |
+| Método | HTML-Aware Custom | Preserva estructura semántica del contenido web |
+
+El pipeline de chunking sigue estos pasos:
+1. Extrae contenido principal con trafilatura (elimina navegación, footers, banners)
+2. Divide por párrafos preservando estructura semántica
+3. Asigna metadata a cada chunk: URL de origen, categoría, chunk_index, total_chunks
+4. Genera embedding con text-embedding-3-large (3072 dimensiones)
+5. Indexa en ChromaDB con similitud coseno
+
+Alternativas descartadas:
+- RecursiveCharacterTextSplitter — pierde estructura semántica del HTML
+- SemanticChunking — costoso computacionalmente para el pipeline diario
+
+### Estadísticas del Scraping
+
+| Métrica | Valor |
+|---|---|
+| URL semilla | https://www.bancolombia.com/personas |
+| Páginas procesadas | 66 páginas |
+| Total chunks indexados | 108 documentos |
+| Categorías identificadas | 7 categorías |
+| Modelo de embeddings | text-embedding-3-large (3072d) |
+| Estrategia de crawling | BFS con detección incremental MD5 |
+| Tiempo de ejecución | ~15 minutos |
 
 ---
 

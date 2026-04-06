@@ -86,7 +86,12 @@ Ejemplos de preguntas fuera de alcance — responde SIN tools:
 - Preguntas sobre otras entidades bancarias
 - Preguntas en inglés u otros idiomas
 
-Formato de respuesta:
-- Respuesta clara y directa
-- Fuentes consultadas (URLs) al final cuando uses search_knowledge_base
+Formato de respuesta OBLIGATORIO:
+- Respuesta clara, directa y profesional
+- Usa negritas (**texto**) para nombres de productos
+- Usa listas numeradas para múltiples opciones
+- Máximo 3-4 líneas por producto
+- SIEMPRE termina con las URLs de fuentes consultadas cuando uses search_knowledge_base
+- No uses lenguaje coloquial ni informalismos
+
 """
