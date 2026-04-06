@@ -5,26 +5,32 @@ Cada decisión incluye contexto, justificación, alternativas descartadas, impac
 
 ---
 
-## ADR-001 — GitHub Models como proveedor de IA
+## ADR-001 — Proveedor de IA (LLM y Embeddings)
 
 ### Contexto
 Se necesita un proveedor de LLM y embeddings gratuito para la prueba técnica que no requiera tarjeta de crédito ni costos al evaluador.
 
 ### Decisión
-Usar GitHub Models (Azure OpenAI) con `gpt-4o` para generación y `text-embedding-3-large` para embeddings.
+Usar **Groq** con `GPT OSS 20B` para el agente conversacional y **GitHub Models** con `text-embedding-3-large` para los embeddings del MCP Server.
 
 ### Justificación
-- Gratuito con token de GitHub — sin costos para el evaluador
-- Stack enterprise de Microsoft/Azure — mismo que usan empresas como Bancolombia
-- `text-embedding-3-large` supera sentence-transformers en benchmarks MTEB español (Muennighoff et al., 2022)
-- Dimensionalidad 3072d vs 768d — 4x mejor separación semántica
-- Toda la configuración via variables de entorno — sin valores hardcodeados
+- Groq ofrece 14,400 requests/día gratuitos vs 50 de GitHub Models para LLM
+- GPT OSS 20B tiene function calling estable — crítico para invocar tools MCP
+- 1000 T/seg de velocidad de inferencia en Groq — respuestas más fluidas
+- Compatible con API OpenAI — cero cambios de código al migrar
+- `text-embedding-3-large` de GitHub Models — 3072 dimensiones, multilingüe, superior en benchmarks MTEB para español
+
+### Agnóstico al proveedor
+El sistema está diseñado para ser agnóstico al proveedor de LLM. Cambiar a Azure OpenAI, AWS Bedrock o Google Vertex AI requiere solo modificar 2 variables de entorno:
+- `LLM_BASE_URL`
+- `LLM_MODEL`
 
 ### Alternativas descartadas
 - **Anthropic Claude:** Excelente LLM pero sin modelo de embeddings propio
 - **sentence-transformers local:** Gratuito pero menor calidad en español y requiere descarga del modelo
 - **OpenAI directo:** Requiere tarjeta de crédito
 - **Gemini:** Buena alternativa pero menos documentación para embeddings en español
+- **GitHub Models para LLM:** Rate limit de 50 req/día — insuficiente para pruebas y demo
 
 ### Impacto de negocio
 Permite demostrar capacidades enterprise sin costos. Migrable a Azure OpenAI directo en producción sin cambiar código.
@@ -32,8 +38,8 @@ Permite demostrar capacidades enterprise sin costos. Migrable a Azure OpenAI dir
 ### Riesgos
 | Riesgo | Probabilidad | Mitigación |
 |---|---|---|
-| Rate limits en tier gratuito | Alta | Cache de embeddings — no re-indexar chunks sin cambios |
-| Token GitHub expuesto | Media | Secrets en Railway y GitHub Actions, nunca en código |
+| Rate limits en tier gratuito | Baja | Groq ofrece 300K TPM — suficiente para uso normal |
+| Token expuesto | Media | Secrets en Railway y GitHub Actions, nunca en código |
 | Deprecación del modelo | Baja | Variable de entorno `LLM_MODEL` — cambio sin tocar código |
 
 ---
@@ -41,7 +47,7 @@ Permite demostrar capacidades enterprise sin costos. Migrable a Azure OpenAI dir
 ## ADR-002 — ChromaDB como base vectorial
 
 ### Contexto
-Se necesita almacenar y consultar embeddings de 97 documentos con filtrado por metadatos.
+Se necesita almacenar y consultar embeddings de 108 documentos con filtrado por metadatos.
 
 ### Decisión
 Usar ChromaDB con persistencia local en disco via `PersistentClient`.
@@ -98,7 +104,7 @@ Streamable HTTP permite que múltiples agentes o aplicaciones consuman el MCP Se
 ### Riesgos
 | Riesgo | Probabilidad | Mitigación |
 |---|---|---|
-| Clientes simultáneos saturan el servidor | Media | Railway auto-scaling + rate limiting |
+| Clientes simultáneos saturan el servidor | Media | Railway auto-scaling + rate limiting por tool |
 
 ---
 
@@ -140,20 +146,23 @@ El patrón ReAct permite al agente decidir autónomamente cuándo buscar informa
 Se necesita dividir el contenido web en chunks para retrieval semántico eficiente. Liu et al. (2023) demuestran que los LLMs tienen dificultades con contextos muy largos.
 
 ### Decisión
-Chunks de 500 palabras con overlap de 50 palabras, segmentación por palabras.
+Chunks de 500 palabras con overlap de 50 palabras, segmentación HTML-Aware.
 
 ### Justificación
 - **500 palabras** — suficiente contexto para responder preguntas sobre productos bancarios sin exceder el contexto útil del retrieval
 - **Overlap de 50** — evita perder información semántica en los bordes del chunk
+- **HTML-Aware** — preserva estructura semántica del contenido web, divide por párrafos
 - **Por palabras vs caracteres** — más estable para español donde las palabras tienen longitud variable
 
 ### Resultado
-66 páginas → 97 chunks indexados — promedio 1.5 chunks por página
+66 páginas → 108 chunks indexados en 7 categorías
 
 ### Alternativas descartadas
+- **RecursiveCharacterTextSplitter:** Pierde estructura semántica del HTML
 - **Chunks por párrafo:** Tamaño inconsistente, difícil de controlar para retrieval uniforme
 - **Chunks de 200 palabras:** Muy pequeños, pierden contexto necesario para responder
 - **Chunks de 1000 palabras:** Muy grandes, menor precisión en el retrieval semántico
+- **SemanticChunking:** Costoso computacionalmente para el pipeline diario automatizado
 
 ### Impacto de negocio
 Chunks bien dimensionados = respuestas más precisas y relevantes para el usuario final.
@@ -182,8 +191,8 @@ Usar SQLite via SQLAlchemy ORM para memoria largo y mediano plazo.
 
 | Tipo | Implementación | Alcance |
 |---|---|---|
-| Corto plazo | `MemorySaver` LangGraph (RAM) | Mensajes de la sesión activa |
-| Mediano plazo | Resúmenes en SQLite | Contexto de conversaciones anteriores |
+| Corto plazo | `MemorySaver` LangGraph (RAM) | Mensajes de la sesión activa — trim automático a 8 mensajes para respetar token limits |
+| Mediano plazo | Resúmenes en SQLite | Contexto de conversaciones anteriores — se genera cuando supera 10 mensajes |
 | Largo plazo | SQLite via SQLAlchemy | Historial completo persistente |
 
 ### Para producción
@@ -208,11 +217,19 @@ El servidor MCP podría construir el prompt y llamar al LLM internamente, o dele
 ### Decisión
 El servidor MCP es una capa de **retrieval pura** — retorna documentos con fuentes y metadatos. La construcción del prompt y la invocación del LLM ocurren en el agente.
 
+### Modelo actual
+GPT OSS 20B via Groq API (compatible con API OpenAI) — seleccionable via variable de entorno `LLM_MODEL`.
+
 ### Justificación
 - **Reutilizabilidad** — el MCP Server puede ser consumido por cualquier cliente sin acoplarse a un LLM específico
 - **Separación de responsabilidades** — retrieval vs generación son concerns distintos
-- **Flexibilidad** — el agente puede cambiar de GPT-4o a Claude o Llama sin tocar el servidor MCP
+- **Flexibilidad** — el agente puede cambiar de GPT OSS 20B a Claude o Llama sin tocar el servidor MCP
 - **Testabilidad** — cada capa se puede testear independientemente
+
+### Alternativas de modelo descartadas
+- **Llama 3.3 70B (Groq)** — inestable en function calling con FastMCP tools
+- **GPT OSS 120B (Groq)** — rate limit de 8,000 TPM en plan gratuito — insuficiente para RAG
+- **GPT-4o (GitHub Models)** — rate limit de 50 req/día — insuficiente para pruebas
 
 ### Trade-offs considerados
 - El agente debe construir el prompt correctamente — mayor responsabilidad en el cliente
@@ -263,7 +280,9 @@ Permite cambiar tecnologías subyacentes sin impactar la lógica de negocio — 
 En producción es necesario monitorear la salud del sistema, latencia de respuestas y calidad del retrieval.
 
 ### Decisión actual
-Logging estructurado con `loguru` en todos los microservicios. Health checks en `/health` de cada servicio.
+- Logging estructurado con `loguru` en todos los microservicios
+- Health checks en `/health` de cada servicio
+- **Langfuse** para trazabilidad completa de interacciones LLM — prompts, respuestas, tools invocadas, tokens y latencia
 
 ### Propuesta para producción
 - **Trazas distribuidas:** OpenTelemetry entre los 4 microservicios
@@ -272,13 +291,13 @@ Logging estructurado con `loguru` en todos los microservicios. Health checks en 
 - **Logs centralizados:** ELK Stack o Datadog
 
 ### Impacto de negocio
-Sin observabilidad los errores en producción son difíciles de diagnosticar. Un sistema de monitoreo permite detectar degradación antes de que afecte al usuario final.
+Sin observabilidad los errores en producción son difíciles de diagnosticar. Langfuse permite detectar degradación en la calidad de las respuestas antes de que afecte al usuario final.
 
 ### Riesgos
 | Riesgo | Probabilidad | Mitigación |
 |---|---|---|
-| Errores silenciosos en producción | Alta sin monitoreo | Health checks + alertas en Railway |
-| Latencia alta no detectada | Media | Métricas de latencia por endpoint |
+| Errores silenciosos en producción | Alta sin monitoreo | Health checks + alertas en Railway + Langfuse |
+| Latencia alta no detectada | Media | Métricas de latencia por endpoint en Langfuse |
 
 ---
 
@@ -289,10 +308,12 @@ Múltiples capas de seguridad implementadas:
 
 | Capa | Implementación |
 |---|---|
-| Rate limiting | slowapi — 10 req/min por IP en el Agent |
+| Rate limiting Agent | slowapi — 10 req/min por IP en el endpoint `/chat` |
+| Rate limiting MCP Server | Decorador custom — 20 req/min por tool (search, get_article, list_categories) |
+| CORS restrictivo | Orígenes permitidos via variable de entorno `ALLOWED_ORIGINS` |
 | Variables de entorno | API keys nunca en código — siempre en `.env` y secrets |
-| CORS | Configurado en FastAPI del Agent |
-| Input sanitization | Queries vacíos y >500 chars rechazados |
+| Input sanitization | Queries vacíos y >500 chars rechazados en el Agent |
+| Error handling LLM | Respuestas amigables para rate limits, timeouts y errores de conexión |
 | robots.txt | Scraper respeta restricciones del sitio |
 | HTTPS | Railway provee TLS automáticamente |
 
@@ -302,13 +323,13 @@ Múltiples capas de seguridad implementadas:
 - Secrets rotation automática
 
 ### Impacto de negocio
-Sin rate limiting un atacante podría agotar los créditos de GitHub Models. Sin validación de inputs el sistema es vulnerable a prompt injection.
+Sin rate limiting un atacante podría agotar los créditos del proveedor LLM. Sin validación de inputs el sistema es vulnerable a prompt injection.
 
 ### Riesgos identificados
 | Riesgo | Probabilidad | Impacto | Mitigación |
 |---|---|---|---|
-| Token GitHub expuesto | Media | Alto | Secrets en Railway/GitHub Actions |
-| Rate limit GitHub Models | Alta | Medio | Cache de respuestas frecuentes |
+| Token Groq/GitHub expuesto | Media | Alto | Secrets en Railway/GitHub Actions |
+| Rate limit del proveedor LLM | Baja | Medio | Error handling amigable + Groq 300K TPM |
 | ChromaDB sin auth | Baja | Alto | No expuesto públicamente — solo interno |
 | Prompt injection | Media | Medio | Sanitización de inputs + system prompt robusto |
 
@@ -324,6 +345,7 @@ Los usuarios de Bancolombia tienen dificultades para encontrar información sobr
 - **Citación de fuentes** — el usuario puede verificar la información directamente en bancolombia.com
 - **Disponibilidad 24/7** — sin dependencia de horarios de atención al cliente
 - **Conocimiento actualizado** — scraper diario garantiza información vigente
+- **Multilingüe** — responde siempre en español independientemente del idioma de la pregunta
 
 ### Métricas de éxito propuestas
 - Tasa de respuestas con fuentes citadas > 90%
@@ -334,7 +356,7 @@ Los usuarios de Bancolombia tienen dificultades para encontrar información sobr
 ### Riesgos de negocio
 | Riesgo | Mitigación |
 |---|---|
-| Información desactualizada | Scraper diario automatizado con detección de cambios |
+| Información desactualizada | Scraper diario automatizado con detección de cambios MD5 |
 | Respuestas incorrectas | Retrieval semántico + citación obligatoria de fuentes |
-| Costos de API | GitHub Models tier gratuito |
-| Dependencia de terceros | Variables de entorno — migrable sin cambiar código |
+| Costos de API | Groq tier gratuito — 14,400 req/día sin costo |
+| Dependencia de terceros | Variables de entorno — migrable a otro proveedor sin cambiar código |

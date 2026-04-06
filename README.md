@@ -12,7 +12,7 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=github-actions&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat&logo=nginx&logoColor=white)
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat&logo=python&logoColor=white)
-![Azure](https://img.shields.io/badge/Azure_OpenAI-0089D6?style=flat&logo=microsoft-azure&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-LPU_Inference-orange?style=flat&logo=groq&logoColor=white)
 ![Langfuse](https://img.shields.io/badge/Langfuse-Observability-blue?style=flat&logo=grafana&logoColor=white)
 
 Asistente virtual del Grupo Bancolombia que responde preguntas sobre productos, servicios y contenido publicado en la sección de personas del sitio web, utilizando una arquitectura RAG con un agente conversacional accesible mediante una interfaz de chat.
@@ -22,19 +22,20 @@ Asistente virtual del Grupo Bancolombia que responde preguntas sobre productos, 
 ## Nota para el evaluador
 
 > La solución usa exclusivamente servicios gratuitos:
-> - **GitHub Models** (Azure OpenAI) — gratuito con token de GitHub
+> - **Groq** — LLM inference con GPT OSS 20B, 14,400 requests/día, compatible con API OpenAI
+> - **GitHub Models** (Azure OpenAI) — gratuito con token de GitHub, usado para embeddings
 > - **ChromaDB** — base vectorial local, sin costo
 > - **Railway** — tier gratuito para los 3 microservicios
 > - **GitHub Actions** — CI/CD gratuito para repositorios públicos
 >
-> Genera tu token de GitHub en https://github.com/settings/tokens — no requiere scopes especiales ni tarjeta de crédito.
+> El sistema está diseñado para ser agnóstico al proveedor de LLM. Cambiar a Azure OpenAI, AWS Bedrock o Google Vertex AI requiere solo modificar 2 variables de entorno sin tocar el código.
 
 ### Opciones de ejecución
 
 | Opción | Descripción | Requisitos |
 |---|---|---|
 | **Sistema en producción** | Sistema desplegado en Railway | Solo abrir el link |
-| **Docker local** | `docker-compose up --build` | Docker Desktop + token GitHub |
+| **Docker local** | `docker-compose up --build` | Docker Desktop + tokens |
 | **Local manual** | Ejecutar cada servicio por separado | Python 3.11 + Node.js 22 |
 
 **URLs del sistema en producción:**
@@ -106,8 +107,7 @@ El frontend implementa persistencia del historial en **localStorage** del navega
 | Limpieza | trafilatura | Extrae solo contenido relevante |
 | Embeddings | text-embedding-3-large (GitHub Models) | 3072d, multilingüe, supera sentence-transformers en MTEB |
 | Base vectorial | ChromaDB | Local, sin costo, dockerizable, migrable a Qdrant/Pinecone |
-| Embeddings | text-embedding-3-large (GitHub Models) | 3072d, multilingüe, supera sentence-transformers en MTEB |
-| LLM | GPT OSS 20B (Groq) | 1000 T/seg, function calling estable, 131k contexto |
+| LLM | GPT OSS 20B (Groq) | 1000 T/seg, function calling estable, 131k contexto, 14,400 req/día gratis |
 | MCP Transport | Streamable HTTP + stdio | Producción y pruebas locales |
 | Agente | LangGraph | Grafos de estado, memoria estructurada, tool orchestration |
 | Frontend | React + TypeScript + Vite | Moderno, tipado, rápido |
@@ -142,7 +142,14 @@ El sistema implementa trazabilidad completa de todas las interacciones con el LL
 
 ### Acceso al dashboard
 
-- URL: https://us.cloud.langfuse.com
+Las credenciales de acceso al dashboard Langfuse serán proporcionadas por separado durante la evaluación por razones de seguridad.
+
+Para acceso propio, configurar en `agent/.env`:
+```env
+LANGFUSE_PUBLIC_KEY=tu_key
+LANGFUSE_SECRET_KEY=tu_secret
+LANGFUSE_HOST=https://us.cloud.langfuse.com
+```
 
 **Dashboard de trazas LLM**
 
@@ -151,7 +158,7 @@ El sistema implementa trazabilidad completa de todas las interacciones con el LL
 ### Métricas disponibles por traza
 
 - Prompt enviado al LLM con contexto RAG
-- Respuesta generada por GPT-4o
+- Respuesta generada por el modelo
 - Tools MCP invocadas (`search_knowledge_base`, `get_article_by_url`, `list_categories`)
 - Tokens usados (prompt + completion)
 - Latencia por request en milisegundos
@@ -166,7 +173,8 @@ El sistema implementa trazabilidad completa de todas las interacciones con el LL
 - Node.js 22+
 - Docker Desktop
 - uv (`pip install uv`)
-- Token de GitHub con acceso a GitHub Models
+- Token de Groq para el LLM del agente
+- Token de GitHub para embeddings del MCP Server
 
 ### Variables de entorno
 ```bash
@@ -175,14 +183,31 @@ cp mcp-server/.env.example mcp-server/.env
 cp agent/.env.example agent/.env
 ```
 
-### Configuración del token de GitHub
+### Configuración de tokens
 
-Genera tu token en [GitHub Models Playground](https://github.com/marketplace/models/azure-openai/gpt-4o/playground) y agrégalo en `mcp-server/.env` y `agent/.env`:
+**Token de GitHub (para embeddings en MCP Server):**
+
+Genera tu token en [GitHub Models Playground](https://github.com/marketplace/models/azure-openai/gpt-4o/playground) y agrégalo en `mcp-server/.env`:
 
 ![Token](docs/img/token.png)
+
 ```env
+# mcp-server/.env
 GITHUB_TOKEN="tu-github-token"
 ```
+
+**Token de Groq (para LLM del agente):**
+
+Genera tu API Key en [Groq Console](https://console.groq.com/keys) y agrégalo en `agent/.env`:
+
+```env
+# agent/.env
+GITHUB_TOKEN="gsk_tu-groq-api-key"
+LLM_MODEL=openai/gpt-oss-20b
+LLM_BASE_URL=https://api.groq.com/openai/v1
+```
+
+> El campo `GITHUB_TOKEN` en el agente acepta la Groq API Key porque ambas APIs son compatibles con el formato OpenAI. El nombre de la variable se mantiene por compatibilidad con el resto del sistema.
 
 ---
 
@@ -247,6 +272,7 @@ npm run dev
 ---
 
 ## Tests
+
 ```bash
 # Scraper
 cd scraper && uv run pytest tests/ -v
@@ -307,6 +333,68 @@ Railway despliega automáticamente en cada push a `main`:
 - MCP Server: https://rag-assistant-production-bb17.up.railway.app/mcp
 - Agent: https://agent-production-065e.up.railway.app/docs
 - Frontend: https://frontend-production-1bed.up.railway.app
+
+---
+
+## Pipeline de Datos
+
+El pipeline de datos transforma páginas web de Bancolombia en documentos vectoriales listos para búsqueda semántica. Se ejecuta automáticamente cada día via GitHub Actions.
+
+### Etapas del pipeline
+
+```
+bancolombia.com/personas
+        │
+        ▼
+1. Descubrimiento de URLs (BFS)
+   crawl4ai + Playwright (Chromium headless)
+   wait_until="networkidle" — captura contenido JavaScript
+        │
+        ▼
+2. Filtrado robots.txt
+   RobotFileParser verifica cada URL antes de procesar
+        │
+        ▼
+3. Extracción de contenido
+   trafilatura — elimina navegación, footers y banners
+   Solo conserva el texto principal del artículo
+        │
+        ▼
+4. Detección de cambios (MD5)
+   content_hash compara con versión anterior
+   Páginas sin cambios se omiten (eficiencia)
+        │
+        ▼
+5. Chunking HTML-Aware
+   500 palabras por chunk, 50 palabras de overlap
+   Preserva estructura semántica del contenido
+        │
+        ▼
+6. Generación de embeddings
+   text-embedding-3-large (GitHub Models)
+   3072 dimensiones — multilingüe
+        │
+        ▼
+7. Indexación en ChromaDB
+   Similitud coseno con metadata:
+   URL, categoría, chunk_index, total_chunks
+        │
+        ▼
+Base vectorial lista para búsqueda semántica
+108 documentos / 7 categorías
+```
+
+### Categorías indexadas
+
+| Categoría | Descripción |
+|---|---|
+| Ahorro | Cuentas de ahorro, CDTs, productos de ahorro |
+| Créditos | Créditos de vivienda, consumo, vehículo, libre inversión |
+| General | Información general de Bancolombia |
+| Inversiones | Fondos de inversión, portafolios |
+| Pagos y Transferencias | PSE, Nequi, transferencias bancarias |
+| Seguros | Seguros de vida, hogar, vehículo, salud |
+| Tarjetas | Tarjetas de crédito y débito |
 
 ---
 
@@ -401,12 +489,13 @@ rag-assistant/
 │   │   ├── domain/
 │   │   ├── application/       # search, get_article, list_categories
 │   │   └── infrastructure/    # ChromaDB, GitHub Models embeddings
+│   ├── run_stdio.py           # Script para MCP Inspector en modo stdio
 │   └── Dockerfile
 ├── agent/                      # Agente LangGraph
 │   ├── src/
 │   │   ├── domain/
 │   │   ├── application/
-│   │   └── infrastructure/    # MCP client, SQLite memory
+│   │   └── infrastructure/    # MCP client, SQLite memory, Langfuse
 │   └── Dockerfile
 ├── frontend/                   # React + TypeScript
 │   ├── src/
@@ -415,10 +504,14 @@ rag-assistant/
 │   │   └── services/
 │   └── Dockerfile
 ├── docs/
-│   └── architecture/          # Diagramas C4
-│   └── decisions/             # Desiciones técnicas
+│   ├── architecture/          # Diagramas C4 Nivel 1, 2 y 3
+│   ├── decisions/             # ADR — Architecture Decision Records
+│   └── img/                   # Capturas de Langfuse y token
 ├── docker-compose.yml
-└── .github/workflows/ci.yml
+└── .github/
+    └── workflows/
+        ├── ci.yml             # CI Pipeline
+        └── scraper.yml        # Scraper Pipeline (scheduled)
 ```
 
 ---
@@ -426,10 +519,10 @@ rag-assistant/
 ## Limitaciones conocidas
 
 - El scraper puede no acceder a páginas con protección antibot avanzada de Bancolombia
-- ChromaDB local no escala horizontalmente, para producción migrar a Qdrant o Pinecone
-- GitHub Models tiene rate limits en el tier gratuito, puede ralentizar indexaciones grandes
+- ChromaDB local no escala horizontalmente — para producción migrar a Qdrant o Pinecone
+- Groq tiene rate limits en el tier gratuito (300K TPM) — suficiente para evaluación y uso normal
 - El historial de conversación se almacena en localStorage del navegador (máx. 20 conversaciones)
-- Railway tier gratuito tiene límite de $5 USD/mes, suficiente para evaluación
+- Railway tier gratuito tiene límite de $5 USD/mes — suficiente para evaluación
 
 ---
 
