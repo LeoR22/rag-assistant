@@ -1,11 +1,13 @@
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Optional
+from collections import defaultdict
+from functools import wraps
 from loguru import logger
 from dotenv import load_dotenv
 import fastmcp
-from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from starlette.requests import Request
 
@@ -16,8 +18,32 @@ from application.use_cases.get_article import GetArticleByUrlUseCase
 from application.use_cases.list_categories import ListCategoriesUseCase
 from infrastructure.vector_store.chroma_repository import ChromaRepository
 
-# No sobreescribe variables ya definidas
-load_dotenv(override=False)  
+load_dotenv(override=False)
+
+# ── Rate Limiting ───────────────────────────────────────────
+_request_counts: dict = defaultdict(list)
+RATE_LIMIT_PER_MINUTE = 20
+
+
+def rate_limit(func):
+    """Decorador de rate limiting — máximo 20 requests/minuto por tool"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        now = time.time()
+        key = func.__name__
+        _request_counts[key] = [
+            t for t in _request_counts[key] if now - t < 60
+        ]
+        if len(_request_counts[key]) >= RATE_LIMIT_PER_MINUTE:
+            logger.warning(f"Rate limit excedido en {key}")
+            return {
+                "error": "Rate limit excedido. Máximo 20 requests por minuto. Intenta en un momento.",
+                "results": [],
+            }
+        _request_counts[key].append(now)
+        return func(*args, **kwargs)
+    return wrapper
+
 
 # ── Inicialización ──────────────────────────────────────────
 mcp = fastmcp.FastMCP(
@@ -30,6 +56,7 @@ mcp = fastmcp.FastMCP(
     Usa list_categories para ver las categorías disponibles.
     """,
 )
+
 
 # ── Repositorio compartido ──────────────────────────────────
 def get_repository() -> ChromaRepository:
@@ -69,6 +96,7 @@ async def health(request: Request) -> JSONResponse:
     SIEMPRE cita las URLs retornadas al final de tu respuesta.
     """
 )
+@rate_limit
 def search_knowledge_base(
     query: str,
     top_k: int = 5,
@@ -126,6 +154,7 @@ def search_knowledge_base(
     Retorna todos los chunks del artículo ordenados con el contenido completo.
     """
 )
+@rate_limit
 def get_article_by_url(url: str) -> dict:
     """
     Args:
@@ -168,6 +197,7 @@ def get_article_by_url(url: str) -> dict:
     Categorías disponibles: Créditos, Ahorro, Inversiones, Seguros, Tarjetas, Pagos y Transferencias, General.
     """
 )
+@rate_limit
 def list_categories() -> dict:
     """Retorna las categorías disponibles en la base de conocimiento"""
     try:
@@ -191,6 +221,7 @@ def list_categories() -> dict:
 # ══════════════════════════════════════════════════════════════
 # RESOURCE
 # ══════════════════════════════════════════════════════════════
+
 @mcp.resource(
     uri="knowledgebase://stats",
     name="knowledge_base_stats",
@@ -222,12 +253,12 @@ if __name__ == "__main__":
     logger.info(f"Transporte: {transport}")
 
     if transport == "stdio":
-        logger.info(f"   Modo: stdio")
+        logger.info(f"Modo: stdio")
         mcp.run(transport="stdio")
     else:
-        logger.info(f"   Host:    {host}:{port}")
-        logger.info(f"   MCP URL: http://{host}:{port}/mcp")
-        logger.info(f"   Health:  http://{host}:{port}/health")
+        logger.info(f"Host: {host}:{port}")
+        logger.info(f"MCP URL: http://{host}:{port}/mcp")
+        logger.info(f"Health:  http://{host}:{port}/health")
         mcp.run(
             transport=transport,
             host=host,
