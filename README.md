@@ -141,24 +141,9 @@ El sistema implementa trazabilidad completa de todas las interacciones con el LL
 
 ### Acceso al dashboard
 
-| Campo | Valor |
-|---|---|
-| URL | https://us.cloud.langfuse.com |
-| Email | `demosprojects2026@gmail.com` |
-| Contraseña | `2026*demosprojects.` |
-| Proyecto | `bancolombia-rag` |
+- URL: https://us.cloud.langfuse.com
 
-### Guía de acceso
-
-**1. Inicio de sesión**
-
-![Inicio de sesión](docs/img/llm0.png)
-
-**2. Ingreso de contraseña**
-
-![Contraseña](docs/img/llm1.png)
-
-**3. Dashboard de trazas LLM**
+**Dashboard de trazas LLM**
 
 ![Trazas LLM](docs/img/llm2.png)
 

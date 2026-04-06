@@ -76,11 +76,35 @@ class ProcessMessageUseCase:
             "callbacks": callbacks,
         }
 
-        result = await agent.ainvoke(
-            {"messages": history},
-            config=config,
-        )
+        try:
+            result = await agent.ainvoke(
+                {"messages": history},
+                config=config,
+            )
+        except Exception as llm_error:
+            logger.error(f"LLM invocation failed: {llm_error}")
+            error_msg = str(llm_error).lower()
 
+            if "rate" in error_msg or "limit" in error_msg or "429" in error_msg:
+                response_content = (
+                    "Lo siento, estoy recibiendo muchas consultas en este momento. "
+                    "Por favor intenta de nuevo en unos segundos."
+                )
+            elif "timeout" in error_msg or "connection" in error_msg:
+                response_content = (
+                    "Estoy teniendo problemas para conectarme. "
+                    "Por favor intenta de nuevo en unos minutos."
+                )
+            else:
+                response_content = (
+                    "Ocurrió un error inesperado. El incidente ha sido registrado."
+                )
+
+            return {
+                "conversation_id": conversation_id,
+                "response": response_content,
+                "sources": [],
+            }
         last_message = result["messages"][-1]
         response_content = last_message.content
 

@@ -31,14 +31,17 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# ── CORS Middleware ─────────────────────────────────────────────
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "").split(",")
 
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[origin.strip() for origin in ALLOWED_ORIGINS],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+    allow_credentials=True,
 )
 
 # ── Schemas ─────────────────────────────────────────────────
