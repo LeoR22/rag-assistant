@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_AGENT_URL || 'https://agent-production-065e.up.railway.app'
+const API_URL = import.meta.env.VITE_AGENT_URL
 
 export interface Source {
   url: string
