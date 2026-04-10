@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_AGENT_URL || 'http://localhost:8001'
+const API_URL = import.meta.env.VITE_AGENT_URL
 
 export interface Source {
   url: string
