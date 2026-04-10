@@ -14,6 +14,8 @@ RUN uv sync --frozen
 COPY src/ ./src/
 COPY .env.example .env
 
+COPY data/ ./data/
+
 EXPOSE 8000
 
 CMD ["uv", "run", "python", "src/server.py"]
