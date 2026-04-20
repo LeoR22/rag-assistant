@@ -1,138 +1,82 @@
 {
   "total_pages": 60,
-  "generated_at": "2026-04-19T04:57:35.059763",
+  "generated_at": "2026-04-20T05:05:35.755505",
   "pages": [
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio",
-      "title": "Canales Personas: Nuestros Canales Disponibles para Ti",
-      "category": "General",
-      "word_count": 74,
+      "url": "https://www.bancolombia.com/personas/productos-servicios/inversiones/fondos-inversion-colectiva/plan-semilla",
+      "title": "Plan Semilla Fiduciaria Bancolombia",
+      "category": "Inversiones",
+      "word_count": 222,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/creditos/vivienda/credito-hipotecario-para-comprar-vivienda",
-      "title": "Crédito de Vivienda - Bancolombia",
+      "url": "https://www.grupobancolombia.com/personas/solicitud-de-productos/creditos/",
+      "title": "Grupo Bancolombia",
       "category": "Créditos",
-      "word_count": 719,
-      "chunks_count": 2
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/consumidor-financiero/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8ziTQzNnD1MLAx8DEJNHQ0cDd0Cgkz9_LyMDM31w8EKDHAARwP9KGL041EQhd_4cP0osBJ_Dw93dxN3gwB_Y3NTg8BAAwNLI9dgT0svU6gCPGYU5IZGGGQ6KgIADNxH1A!!/",
-      "title": "Consumidor Financiero Bancolombia.",
-      "category": "General",
-      "word_count": 209,
+      "word_count": 194,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/ninos/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8zi_T083N1N3A0C_I0c3QwC3UyNnI3Mg83c_c31w8EKDHAARwP9KGL041EQhd_4cP0oPFZ4uhsYYygwNjc1CAw0MLA0cg32tPQyhSrAY0lBbmiEQaanIgC331Hp/",
+      "url": "https://www.bancolombia.com/personas/productos-servicios/tarjetas-debito/maestro/transporte/",
+      "title": "Tarjeta Débito Pago Sin Contacto - Grupo Bancolombia",
+      "category": "Tarjetas",
+      "word_count": 1488,
+      "chunks_count": 4
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/ninos/calculadora/",
+      "title": "Banconautas - Aprende a ahorrar con la Calculadora de sueños",
+      "category": "General",
+      "word_count": 138,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/ninos",
       "title": "Banconautas - Banco para niños",
       "category": "General",
       "word_count": 164,
       "chunks_count": 1
     },
     {
-      "url": "https://www.grupobancolombia.com/personas/solicitud-de-productos/cuentas/",
-      "title": "Grupo Bancolombia",
+      "url": "https://www.bancolombia.com/personas/productos-servicios/compra-venta-dolares-efectivo",
+      "title": "Compra y venta de divisas",
       "category": "General",
-      "word_count": 194,
+      "word_count": 106,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/defensor-financiero",
-      "title": "Defensor del Consumidor Financiero Bancolombia",
+      "url": "https://www.bancolombia.com/personas/documentos-legales/operadores-informacion-financiera",
+      "title": "Operadores de Informacion Financiera",
       "category": "General",
-      "word_count": 1282,
-      "chunks_count": 3
+      "word_count": 1407,
+      "chunks_count": 4
     },
     {
-      "url": "https://www.bancolombia.com/personas/movilidad/publica",
-      "title": "Tarjeta Cívica - Recárgala fácilmente con Bancolombia",
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/preferencial",
+      "title": "Cliente Preferencial - Bancolombia",
       "category": "General",
-      "word_count": 153,
+      "word_count": 350,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/leasing",
-      "title": "Leasing Personas",
+      "url": "https://www.bancolombia.com/personas/beneficios",
+      "title": "Beneficios de Bancolombia",
       "category": "General",
-      "word_count": 149,
+      "word_count": 84,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/independientes",
-      "title": "Cliente Independiente",
-      "category": "General",
-      "word_count": 168,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/contactanos",
-      "title": "Contáctanos en nuestro Chat y Teléfono Bancolombia",
-      "category": "General",
-      "word_count": 65,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/familia",
-      "title": "Banco para la familia",
-      "category": "General",
-      "word_count": 136,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/cuentas",
-      "title": "Cuentas Bancolombia. Opciones que tenemos para tí",
-      "category": "General",
-      "word_count": 162,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/giros",
-      "title": "Giros Bancolombia: Envia dinero en Colombia y al exterior",
-      "category": "General",
-      "word_count": 120,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/creditos",
-      "title": "Créditos Bancolombia para todas tus necesidades",
-      "category": "Créditos",
-      "word_count": 508,
+      "url": "https://www.bancolombia.com/personas/seguros/salud-vida/plan-salud-para-ti",
+      "title": "Plan salud para ti",
+      "category": "Seguros",
+      "word_count": 596,
       "chunks_count": 2
     },
     {
-      "url": "https://www.bancolombia.com/personas/vivienda",
-      "title": "Vivienda Bancolombia - Obtén la casa de tus sueños",
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio",
+      "title": "Canales Personas: Nuestros Canales Disponibles para Ti",
       "category": "General",
-      "word_count": 135,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/tarjetas-de-credito",
-      "title": "Tarjetas de crédito Bancolombia para que pagues fácilmente",
-      "category": "Tarjetas",
-      "word_count": 70,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/documentos-legales/transparencia-acceso-informacion",
-      "title": "Índice de transparencia y acceso a la información  - Grupo Bancolombia",
-      "category": "General",
-      "word_count": 2361,
-      "chunks_count": 6
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/tarifario",
-      "title": "Tarifario | Bancolombia",
-      "category": "General",
-      "word_count": 219,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/tarjetas-debito",
-      "title": "Tarjetas débito",
-      "category": "Tarjetas",
-      "word_count": 243,
+      "word_count": 74,
       "chunks_count": 1
     },
     {
@@ -143,6 +87,27 @@
       "chunks_count": 1
     },
     {
+      "url": "https://www.bancolombia.com/personas/documentos-legales/transparencia-acceso-informacion",
+      "title": "Índice de transparencia y acceso a la información  - Grupo Bancolombia",
+      "category": "General",
+      "word_count": 2361,
+      "chunks_count": 6
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/alternativas-financieras/negociar-deuda",
+      "title": "Negocia tu deuda de créditos Bancolombia",
+      "category": "General",
+      "word_count": 236,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/privada",
+      "title": "Banca Privada",
+      "category": "General",
+      "word_count": 389,
+      "chunks_count": 1
+    },
+    {
       "url": "https://www.bancolombia.com/personas/solicitud-de-productos",
       "title": "Personas: Solicitud y descarga de documentos Bancolombia",
       "category": "General",
@@ -150,10 +115,45 @@
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/compra-venta-dolares-efectivo",
-      "title": "Compra y venta de divisas",
+      "url": "https://www.bancolombia.com/personas/beneficios/nomina",
+      "title": "Nomina",
       "category": "General",
-      "word_count": 106,
+      "word_count": 152,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/contactanos",
+      "title": "Contáctanos en nuestro Chat y Teléfono Bancolombia",
+      "category": "General",
+      "word_count": 65,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/creditos",
+      "title": "Créditos Bancolombia para todas tus necesidades",
+      "category": "Créditos",
+      "word_count": 508,
+      "chunks_count": 2
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/documentos-legales/personas-con-discapacidad",
+      "title": "Diversidad, Equidad e Inclusión Bancolombia",
+      "category": "General",
+      "word_count": 408,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/seguros",
+      "title": "Seguros Bancolombia",
+      "category": "Seguros",
+      "word_count": 345,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/vivienda",
+      "title": "Vivienda Bancolombia - Obtén la casa de tus sueños",
+      "category": "General",
+      "word_count": 135,
       "chunks_count": 1
     },
     {
@@ -171,108 +171,66 @@
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/alternativas-financieras/negociar-deuda",
-      "title": "Negocia tu deuda de créditos Bancolombia",
-      "category": "General",
-      "word_count": 236,
+      "url": "https://www.bancolombia.com/personas/creditos/consumo",
+      "title": "Créditos de consumo Bancolombia: financia tu viaje hoy",
+      "category": "Créditos",
+      "word_count": 223,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/seguros/salud-vida/plan-salud-para-ti",
-      "title": "Plan salud para ti",
-      "category": "Seguros",
-      "word_count": 596,
-      "chunks_count": 2
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/ninos",
-      "title": "Banconautas - Banco para niños",
-      "category": "General",
-      "word_count": 164,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/beneficios/futbol/hinchas",
-      "title": "Hinchas de los que hacen historia",
-      "category": "General",
-      "word_count": 327,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/documentos-legales/personas-con-discapacidad",
-      "title": "Diversidad, Equidad e Inclusión Bancolombia",
-      "category": "General",
-      "word_count": 408,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/documentos-legales/proteccion-datos/bancolombia-sa",
-      "title": "Protección de Datos Bancolombia - Personas",
-      "category": "General",
-      "word_count": 3478,
-      "chunks_count": 8
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/documentos-legales",
-      "title": "Documentos Legales - Personas",
-      "category": "General",
-      "word_count": 157,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8zi_T083N1N3A0C_I3NTQ0CAw0MLI1cgz0tvUz1wwkpiAJKG-AAjgZA_VGElBTkRhikOyoqAgCS5n-m/www.bancolombia.com/lacasadelaplata​",
-      "title": "Bancolombia Personas",
-      "category": "General",
-      "word_count": 106,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/giros",
+      "url": "https://www.bancolombia.com/personas/productos-servicios/leasing",
       "title": "Leasing Personas",
       "category": "General",
       "word_count": 149,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/fisico/corresponsal-bancario",
-      "title": "Bancolombia Corresponsal Bancario",
-      "category": "General",
-      "word_count": 168,
+      "url": "https://www.bancolombia.com/personas/seguros/salud-vida/plan-salud-para-ti​",
+      "title": "Seguros para Vida y Salud",
+      "category": "Seguros",
+      "word_count": 260,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/fisico/sucursal-fisica",
+      "url": "https://www.bancolombia.com/personas/giros",
+      "title": "Giros Bancolombia: Envia dinero en Colombia y al exterior",
+      "category": "General",
+      "word_count": 120,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/colombianos-en-el-exterior",
+      "title": "Banco para Colombianos en el exterior",
+      "category": "General",
+      "word_count": 319,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/jovenes",
+      "title": "Bancolombia para Jóvenes",
+      "category": "General",
+      "word_count": 108,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/tarjetas-de-credito",
+      "title": "Tarjetas de crédito Bancolombia para que pagues fácilmente",
+      "category": "Tarjetas",
+      "word_count": 70,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/tarjetas-debito",
+      "title": "Tarjetas débito",
+      "category": "Tarjetas",
+      "word_count": 243,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/fisico/cajeros-automaticos",
       "title": "Bancolombia Personas",
       "category": "General",
       "word_count": 106,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/contactanos/bancolombia/",
-      "title": "an_pe_con_ban",
-      "category": "General",
-      "word_count": 402,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/a-la-mano/deposito-a-la-mano",
-      "title": "A la mano se despide y le dice ¡Hola a Nequi!",
-      "category": "General",
-      "word_count": 209,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/sucursal-web/sucursal-virtual-personas",
-      "title": "Bancolombia Personas",
-      "category": "General",
-      "word_count": 106,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/pagos",
-      "title": "Servicios de Pago para Personas",
-      "category": "Pagos y Transferencias",
-      "word_count": 181,
       "chunks_count": 1
     },
     {
@@ -290,115 +248,24 @@
       "chunks_count": 6
     },
     {
-      "url": "https://www.bancolombia.com/personas/documentos-legales/operadores-informacion-financiera",
-      "title": "Operadores de Informacion Financiera",
+      "url": "https://www.bancolombia.com/personas/contactanos/bancolombia/",
+      "title": "an_pe_con_ban",
       "category": "General",
-      "word_count": 1407,
-      "chunks_count": 4
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/a-la-mano",
-      "title": "A la mano se despide y le dice ¡Hola a Nequi!",
-      "category": "General",
-      "word_count": 209,
+      "word_count": 402,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/movil/bancolombia-app",
+      "url": "https://www.bancolombia.com/personas/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8zi_T083N1N3A0C_I3NTQ0CAw0MLI1cgz0tvUz1wwkpiAJKG-AAjgZA_VGElBTkRhikOyoqAgCS5n-m/www.bancolombia.com/lacasadelaplata​",
       "title": "Bancolombia Personas",
       "category": "General",
       "word_count": 106,
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/telefonico",
-      "title": "Comunícate con la Sucursal Telefónica Bancolombia",
+      "url": "https://www.bancolombia.com/personas/documentos-legales",
+      "title": "Documentos Legales - Personas",
       "category": "General",
-      "word_count": 826,
-      "chunks_count": 2
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8zi_T083N1N3A0C_I3NTQ0CAw0MLI1cgz0tvUz1wwkpiAJKG-AAjgZA_VGElBTkRhikOyoqAgCS5n-m/",
-      "title": "Bancolombia Personas",
-      "category": "General",
-      "word_count": 106,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/privada",
-      "title": "Banca Privada",
-      "category": "General",
-      "word_count": 389,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/beneficios/nomina",
-      "title": "Nomina",
-      "category": "General",
-      "word_count": 152,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/preferencial",
-      "title": "Cliente Preferencial - Bancolombia",
-      "category": "General",
-      "word_count": 350,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/jovenes",
-      "title": "Bancolombia para Jóvenes",
-      "category": "General",
-      "word_count": 108,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/sucursal-web/multipagos-pse",
-      "title": "Bancolombia Personas",
-      "category": "Pagos y Transferencias",
-      "word_count": 106,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/creditos/consumo",
-      "title": "Créditos de consumo Bancolombia: financia tu viaje hoy",
-      "category": "Créditos",
-      "word_count": 223,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/seguros",
-      "title": "Seguros Bancolombia",
-      "category": "Seguros",
-      "word_count": 345,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/fisico/cajeros-automaticos",
-      "title": "Bancolombia Personas",
-      "category": "General",
-      "word_count": 106,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/banco-para-todos/colombianos-en-el-exterior",
-      "title": "Banco para Colombianos en el exterior",
-      "category": "General",
-      "word_count": 319,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/beneficios",
-      "title": "Beneficios de Bancolombia",
-      "category": "General",
-      "word_count": 84,
-      "chunks_count": 1
-    },
-    {
-      "url": "https://www.bancolombia.com/personas/seguros/salud-vida/plan-salud-para-ti​",
-      "title": "Seguros para Vida y Salud",
-      "category": "Seguros",
-      "word_count": 260,
+      "word_count": 157,
       "chunks_count": 1
     },
     {
@@ -409,6 +276,132 @@
       "chunks_count": 2
     },
     {
+      "url": "https://www.bancolombia.com/personas/documentos-legales/proteccion-datos/bancolombia-sa",
+      "title": "Protección de Datos Bancolombia - Personas",
+      "category": "General",
+      "word_count": 3478,
+      "chunks_count": 8
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/giros",
+      "title": "Leasing Personas",
+      "category": "General",
+      "word_count": 149,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/telefonico",
+      "title": "Comunícate con la Sucursal Telefónica Bancolombia",
+      "category": "General",
+      "word_count": 826,
+      "chunks_count": 2
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/fisico/sucursal-fisica",
+      "title": "Bancolombia Personas",
+      "category": "General",
+      "word_count": 106,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/a-la-mano/deposito-a-la-mano",
+      "title": "A la mano se despide y le dice ¡Hola a Nequi!",
+      "category": "General",
+      "word_count": 209,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/tarifario",
+      "title": "Tarifario | Bancolombia",
+      "category": "General",
+      "word_count": 219,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/defensor-financiero",
+      "title": "Defensor del Consumidor Financiero Bancolombia",
+      "category": "General",
+      "word_count": 1282,
+      "chunks_count": 3
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/!ut/p/z1/04_Sj9CPykssy0xPLMnMz0vMAfIjo8zi_T083N1N3A0C_I3NTQ0CAw0MLI1cgz0tvUz1wwkpiAJKG-AAjgZA_VGElBTkRhikOyoqAgCS5n-m/",
+      "title": "Bancolombia Personas",
+      "category": "General",
+      "word_count": 106,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/familia",
+      "title": "Banco para la familia",
+      "category": "General",
+      "word_count": 136,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/a-la-mano",
+      "title": "A la mano se despide y le dice ¡Hola a Nequi!",
+      "category": "General",
+      "word_count": 209,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/pagos",
+      "title": "Servicios de Pago para Personas",
+      "category": "Pagos y Transferencias",
+      "word_count": 181,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/fisico/corresponsal-bancario",
+      "title": "Bancolombia Corresponsal Bancario",
+      "category": "General",
+      "word_count": 168,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/banco-para-todos/independientes",
+      "title": "Cliente Independiente",
+      "category": "General",
+      "word_count": 168,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/sucursal-web/sucursal-virtual-personas",
+      "title": "Bancolombia Personas",
+      "category": "General",
+      "word_count": 106,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/cuentas",
+      "title": "Cuentas Bancolombia. Opciones que tenemos para tí",
+      "category": "General",
+      "word_count": 162,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/sucursal-web/multipagos-pse",
+      "title": "Bancolombia Personas",
+      "category": "Pagos y Transferencias",
+      "word_count": 106,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/movilidad/publica",
+      "title": "Tarjeta Cívica - Recárgala fácilmente con Bancolombia",
+      "category": "General",
+      "word_count": 153,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.bancolombia.com/personas/beneficios/futbol/hinchas",
+      "title": "Hinchas de los que hacen historia",
+      "category": "General",
+      "word_count": 327,
+      "chunks_count": 1
+    },
+    {
       "url": "https://www.bancolombia.com/personas/usados-bancolombia",
       "title": "Usados Bancolombia:  activos usados que puedes comprar",
       "category": "General",
@@ -416,10 +409,17 @@
       "chunks_count": 1
     },
     {
-      "url": "https://www.bancolombia.com/personas/productos-servicios/inversiones/fondos-inversion-colectiva/fiducuenta",
-      "title": "Fiducuenta Fiduciaria Bancolombia",
-      "category": "Inversiones",
-      "word_count": 210,
+      "url": "https://www.bancolombia.com/personas/productos-servicios/canales-servicio/movil/bancolombia-app",
+      "title": "Bancolombia Personas",
+      "category": "General",
+      "word_count": 106,
+      "chunks_count": 1
+    },
+    {
+      "url": "https://www.grupobancolombia.com/personas/solicitud-de-productos/cuentas/",
+      "title": "Grupo Bancolombia",
+      "category": "General",
+      "word_count": 194,
       "chunks_count": 1
     }
   ]
